@@ -87,8 +87,8 @@ const assert = require('node:assert/strict');
 
     await page.goto(`http://127.0.0.1:${server.address().port}`);
     await page.getByRole('button', { name: '接続 / Connect Device' }).click();
-    await page.getByRole('tab', { name: 'モニター' }).click();
-    await page.getByText('コントローラーモニター', { exact: true }).waitFor();
+    await page.getByRole('button', { name: /^コントローラーモニター/ }).click();
+    await page.getByRole('region', { name: 'コントローラーモニター' }).waitFor();
 
     await page.waitForTimeout(250);
     if (pageErrors.length) throw new Error(`page errors: ${pageErrors.join(' | ')}`);

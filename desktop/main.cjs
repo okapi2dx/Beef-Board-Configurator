@@ -8,7 +8,8 @@ const { checkForUpdate } = require('./update-check.cjs');
 
 let window;
 if (process.env.BEEF_TEST_USER_DATA) app.setPath('userData', process.env.BEEF_TEST_USER_DATA);
-if (!app.requestSingleInstanceLock()) app.quit();
+const hasInstanceLock = process.env.BEEF_TEST_USER_DATA ? true : app.requestSingleInstanceLock();
+if (!hasInstanceLock) app.quit();
 else {
   app.on('second-instance', () => { if (window) { window.restore(); window.focus(); } });
   app.whenReady().then(start).catch(error => {

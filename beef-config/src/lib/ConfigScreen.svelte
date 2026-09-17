@@ -28,9 +28,12 @@
 	import { tr } from '$lib/types/locale.svelte';
 
 	let config: Config | undefined = $state();
-	let { active = true }: { active?: boolean } = $props();
+	let {
+		active = true,
+		settingsTab = $bindable('input'),
+		showTabs = true
+	}: { active?: boolean; settingsTab?: string; showTabs?: boolean } = $props();
 	let controllerRestarting = $state(false);
-	let settingsTab = $state('input');
 	function controllerModeLabel(mode: ControllerType): string {
 		if (mode === ControllerType.Default) return tr('デフォルト', 'Default');
 		if (mode === ControllerType.IIDXEntry) return 'IIDX Entry';
@@ -80,12 +83,14 @@
 	{/if}
 
 <Tabs.Root bind:value={settingsTab}>
+  {#if showTabs}
   <Tabs.List class="mb-5 grid h-auto w-full grid-cols-4" aria-label={tr('設定カテゴリ', 'Settings categories')}>
     <Tabs.Trigger value="input">{tr('入力設定', 'Input')}</Tabs.Trigger>
     <Tabs.Trigger value="led">{tr('LED設定', 'LEDs')}</Tabs.Trigger>
     <Tabs.Trigger value="keys">{tr('キー割り当て', 'Key Bindings')}</Tabs.Trigger>
     <Tabs.Trigger value="monitor">{tr('モニター', 'Monitor')}</Tabs.Trigger>
   </Tabs.List>
+  {/if}
   <Tabs.Content value="input" class="settings-card">
 	<div class="mb-4">
 		<Label for="controller-type">{tr('コントローラーモード', 'Controller Mode')}</Label>

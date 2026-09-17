@@ -163,6 +163,46 @@
 		>
 	</div>
 	<div class="monitor-layout">
+		<div class="monitor-panels">
+			<div class="panel panel-primary">
+				<strong>{tr('入力状態', 'Input state')}</strong>
+				<div class="status-list">
+					<div class="status-row">
+						<span>{tr('X軸', 'X Axis')}</span><b data-testid="monitor-axis-value"
+							>{axisLabel(data?.output)}/255</b
+						>
+					</div>
+					<div class="status-row pressed-row">
+						<span>{tr('押下中', 'Pressed')}</span><b class="pressed-value">{pressed.join('・') || '—'}</b>
+					</div>
+				</div>
+			</div>
+			<div class="panel panel-primary">
+				<strong>{tr('LEDプレビュー', 'LED Preview')}</strong>
+				<div class="status-list">
+					<div class="status-row">
+						<span>{tr('ターンテーブル', 'Turntable')}</span><b data-testid="monitor-tt-effect"
+							>{effectLabel(config.tt_effect)}</b
+						>
+					</div>
+					<div class="status-row">
+						<span>{tr('ライトバー', 'Light bar')}</span><b data-testid="monitor-bar-effect"
+							>{effectLabel(config.link_bar_effect ? config.tt_effect : config.bar_effect)}</b
+						>
+					</div>
+				</div>
+			</div>
+			<div class="panel panel-layout">
+				<strong>{tr('表示する配置', 'Layout')}</strong>
+				<div class="side-buttons">
+					{#each ['1P', '2P'] as s}<button
+							class:selected={side === s}
+							aria-pressed={side === s}
+							onclick={() => (side = s)}>{s}</button
+						>{/each}
+				</div>
+			</div>
+		</div>
 		<div class="stage">
 			<div class="stage-title" data-testid="monitor-side">{side}</div>
 			<div class="device" class:second={side === '2P'}>
@@ -207,46 +247,6 @@
 				</div>
 			</div>
 		</div>
-		<aside>
-			<div class="panel">
-				<strong>{tr('入力状態', 'Input state')}</strong>
-				<div class="status-list">
-					<div class="status-row">
-						<span>{tr('X軸', 'X Axis')}</span><b data-testid="monitor-axis-value"
-							>{axisLabel(data?.output)}/255</b
-						>
-					</div>
-					<div class="status-row">
-						<span>{tr('押下中', 'Pressed')}</span><b>{pressed.join('・') || '—'}</b>
-					</div>
-				</div>
-			</div>
-			<div class="panel">
-				<strong>{tr('表示する配置', 'Layout')}</strong>
-				<div class="side-buttons">
-					{#each ['1P', '2P'] as s}<button
-							class:selected={side === s}
-							aria-pressed={side === s}
-							onclick={() => (side = s)}>{s}</button
-						>{/each}
-				</div>
-			</div>
-			<div class="panel">
-				<strong>{tr('LEDプレビュー', 'LED Preview')}</strong>
-				<div class="status-list">
-					<div class="status-row">
-						<span>{tr('ターンテーブル', 'Turntable')}</span><b data-testid="monitor-tt-effect"
-							>{effectLabel(config.tt_effect)}</b
-						>
-					</div>
-					<div class="status-row">
-						<span>{tr('ライトバー', 'Light bar')}</span><b data-testid="monitor-bar-effect"
-							>{effectLabel(config.link_bar_effect ? config.tt_effect : config.bar_effect)}</b
-						>
-					</div>
-				</div>
-			</div>
-		</aside>
 	</div>
 </section>
 
@@ -266,14 +266,19 @@
 		margin-bottom: 16px;
 	}
 	.monitor-layout {
+		display: flex;
+		flex-direction: column;
+		gap: 14px;
+	}
+	.monitor-panels {
 		display: grid;
-		grid-template-columns: minmax(0, 1fr) 215px;
-		gap: 16px;
+		grid-template-columns: minmax(0, 1.15fr) minmax(0, 1.15fr) minmax(150px, 0.7fr);
+		gap: 12px;
 	}
 	.stage {
 		background: #0f172a;
 		border-radius: 14px;
-		padding: 16px;
+		padding: 18px;
 		color: #e2e8f0;
 		min-width: 0;
 	}
@@ -287,7 +292,9 @@
 		align-items: stretch;
 		gap: 1.2%;
 		padding: 1.1%;
-		aspect-ratio: 1.92;
+		width: min(100%, 920px);
+		margin: 0 auto;
+		aspect-ratio: 2.08;
 		background: linear-gradient(145deg, #eef2f6, #aab5c1);
 		border-radius: 16px;
 		border: 3px double #718094;
@@ -379,9 +386,15 @@
 	.panel {
 		border: 1px solid var(--border);
 		border-radius: 10px;
-		padding: 12px;
-		margin-bottom: 12px;
+		padding: 13px 14px;
 		font-size: 12px;
+		background: color-mix(in srgb, var(--card) 96%, var(--muted));
+	}
+	.panel-primary {
+		min-height: 118px;
+	}
+	.panel-layout {
+		min-width: 0;
 	}
 	.panel strong {
 		font-size: 14px;
@@ -408,6 +421,13 @@
 		overflow-wrap: anywhere;
 		font-variant-numeric: tabular-nums;
 	}
+	.pressed-row {
+		min-height: 46px;
+	}
+	.pressed-value {
+		line-height: 1.45;
+		min-height: 2.9em;
+	}
 	.panel button {
 		border: 1px solid var(--border);
 		border-radius: 6px;
@@ -427,16 +447,27 @@
 		color: var(--primary-foreground);
 	}
 	@media (max-width: 800px) {
-		.monitor-layout {
-			grid-template-columns: 1fr;
-		}
-		aside {
+		.monitor-panels {
 			display: grid;
-			grid-template-columns: repeat(3, minmax(0, 1fr));
+			grid-template-columns: repeat(2, minmax(0, 1fr));
 			gap: 8px;
+		}
+		.panel-layout {
+			grid-column: 1 / -1;
+		}
+		.stage {
+			padding: 12px;
 		}
 		.bar {
 			min-height: 150px;
+		}
+	}
+	@media (max-width: 560px) {
+		.monitor-panels {
+			grid-template-columns: 1fr;
+		}
+		.panel-layout {
+			grid-column: auto;
 		}
 	}
 </style>

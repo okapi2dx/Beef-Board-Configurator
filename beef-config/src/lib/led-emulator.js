@@ -1,6 +1,12 @@
 // Local LED model: 24 turntable pixels, 16 bar pixels. No LED USB reports.
 const black = '#000000';
+/** @param {number} x @param {number} n */
 const wrap = (x, n) => ((x % n) + n) % n;
+/**
+ * @param {{h: number, s: number, v: number}} c
+ * @param {number} [h]
+ * @param {number} [v]
+ */
 function color(c, h = c.h, v = c.v) {
   const l = v * (1 - c.s / 200);
   const s = l === 0 || l === 100 ? 0 : (v - l) / Math.min(l, 100 - l) * 100;
@@ -10,9 +16,18 @@ export function createLedEmulator() {
   let time = 0, spin = 0, rainbow = 0, react = 0, hue = 0;
   let lastButtons = 0, level = 0, guard = -100, decay = 0;
   let lastMotion = -Infinity, targetVelocity = 0, velocity = 0;
-  let previousInput = null, previousPosition = null, sampleTime = 0;
+  /** @type {import('$lib/types/hid').Diagnostics | null} */
+  let previousInput = null;
+  /** @type {number | null} */
+  let previousPosition = null;
+  let sampleTime = 0;
   const released = Array(11).fill(-Infinity);
   const wasOn = Array(11).fill(false);
+  /**
+   * @param {any} cfg
+   * @param {import('$lib/types/hid').Diagnostics | null} input
+   * @param {number} dt
+   */
   return (cfg, input, dt) => {
     time += dt;
     const direction = (input?.direction ?? 0) * (cfg.reverse_tt ? 1 : -1);
@@ -56,6 +71,7 @@ export function createLedEmulator() {
     if (buttons !== lastButtons) { level = Math.min(16, level + 1); decay = time; }
     else if (time - decay >= 30) { level = Math.max(0, level - Math.floor((time-decay)/30)); decay = time; }
     lastButtons = buttons;
+    /** @param {number} cycle */
     const wave = cycle => {
       const theta = Math.min(255, (time % cycle) / 8);
       const triangle = theta < 128 ? theta * 2 : (255 - theta) * 2;
@@ -63,9 +79,11 @@ export function createLedEmulator() {
       return 100 * (x < .5 ? 2*x*x : 1-2*(1-x)*(1-x));
     };
     const mode = cfg.tt_effect;
-    const c = ({Static:cfg.tt_static_hsv, Spin:cfg.tt_spin_hsv, Shift:cfg.tt_shift_hsv,
+    /** @type {Record<string, {h: number, s: number, v: number} | undefined>} */
+    const modeColors = ({Static:cfg.tt_static_hsv, Spin:cfg.tt_spin_hsv, Shift:cfg.tt_shift_hsv,
       'Rainbow Static':cfg.tt_rainbow_static_hsv,'Rainbow Reactive':cfg.tt_rainbow_react_hsv,
-      'Rainbow Spin':cfg.tt_rainbow_spin_hsv,Reactive:cfg.tt_react_hsv,Breathing:cfg.tt_breathing_hsv})[mode];
+      'Rainbow Spin':cfg.tt_rainbow_spin_hsv,Reactive:cfg.tt_react_hsv,Breathing:cfg.tt_breathing_hsv});
+    const c = modeColors[mode];
     const ring = Array.from({length:24}, (_,i) => {
       if (cfg.disable_leds || mode === 'Off') return black;
       if (mode === 'HID') return color({h:0,s:0,v:100},0,wave(2048));

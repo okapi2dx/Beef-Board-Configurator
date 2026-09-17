@@ -125,6 +125,10 @@ extern const USB_Descriptor_Device_t* DeviceDescriptor;
 extern const USB_Descriptor_Configuration_t* ConfigurationDescriptor;
 extern uint8_t LedStringCount;
 extern const USB_Descriptor_String_t** LedStrings;
+extern const USB_Descriptor_String_t DefaultManufacturerString;
+extern const USB_Descriptor_String_t DefaultProductString;
+extern const USB_Descriptor_String_t* ManufacturerStringDescriptor;
+extern const USB_Descriptor_String_t* ProductStringDescriptor;
 
 // Enum for the device interface descriptor IDs within the
 // device. Each interface descriptor should have a unique ID index
@@ -238,7 +242,7 @@ const USB_Descriptor_HIDReport_Datatype_t PROGMEM ConfigHIDReport[] {
 // supported USB version, control endpoint size and the number of
 // device configurations. The descriptor is read out by the USB host
 // when the enumeration process begins.
-constexpr USB_Descriptor_Device_t generate_device_descriptor(uint16_t vid, uint16_t pid) {
+constexpr USB_Descriptor_Device_t generate_device_descriptor(uint16_t vid, uint16_t pid, uint16_t release_number = VERSION_BCD(0,0,1)) {
   return USB_Descriptor_Device_t{
     .Header = {.Size = sizeof(USB_Descriptor_Device_t), .Type = DTYPE_Device},
     .USBSpecification = VERSION_BCD(1,1,0),
@@ -248,7 +252,7 @@ constexpr USB_Descriptor_Device_t generate_device_descriptor(uint16_t vid, uint1
     .Endpoint0Size = FIXED_CONTROL_ENDPOINT_SIZE,
     .VendorID = vid,
     .ProductID = pid,
-    .ReleaseNumber = VERSION_BCD(0,0,1),
+    .ReleaseNumber = release_number,
     .ManufacturerStrIndex = STRING_ID_Manufacturer,
     .ProductStrIndex = STRING_ID_Product,
     .SerialNumStrIndex = NO_DESCRIPTOR,

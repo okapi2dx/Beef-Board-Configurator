@@ -4,10 +4,14 @@ function trusted(url) {
 }
 function allowedDevice(type, device) {
   if (!device) return false;
-  if (type === 'hid') return (
-    (device.vendorId === 0xfeed && device.productId === 0x0000) ||
-    (device.vendorId === 0x1ccf && [0x1018, 0x8048].includes(device.productId))
-  ) && (device.name ?? device.productName) === 'BEEF BOARD';
+  if (type === 'hid') {
+    const name = device.name ?? device.productName;
+    if (device.vendorId === 0xfeed && device.productId === 0x0000) return name === 'BEEF BOARD';
+    if (device.vendorId !== 0x1ccf) return false;
+    if (device.productId === 0x1018) return ['BEEF BOARD', 'beatmania IIDX controller entry model'].includes(name);
+    if (device.productId === 0x8048) return ['BEEF BOARD', 'beatmania IIDX controller premium model'].includes(name);
+    return false;
+  }
   return type === 'usb' && device.vendorId === 0x03eb && device.productId === 0x2ffb;
 }
 module.exports = { ORIGIN, trusted, allowedDevice };

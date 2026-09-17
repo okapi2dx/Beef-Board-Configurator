@@ -21,13 +21,16 @@ const USB_Descriptor_String_t PROGMEM LanguageString = USB_STRING_DESCRIPTOR_ARR
 // the manufacturer's details in human readable form, and is read out
 // upon request by the host when the appropriate string ID is
 // requested, listed in the Device Descriptor.
-const USB_Descriptor_String_t PROGMEM ManufacturerString = USB_STRING_DESCRIPTOR(L"SEGV");
+const USB_Descriptor_String_t PROGMEM DefaultManufacturerString = USB_STRING_DESCRIPTOR(L"SEGV");
 
 // Product descriptor string. This is a Unicode string containing the
 // product's details in human readable form, and is read out upon
 // request by the host when the appropriate string ID is requested,
 // listed in the Device Descriptor.
-const USB_Descriptor_String_t PROGMEM ProductString = USB_STRING_DESCRIPTOR(L"BEEF BOARD");
+const USB_Descriptor_String_t PROGMEM DefaultProductString = USB_STRING_DESCRIPTOR(L"BEEF BOARD");
+
+const USB_Descriptor_String_t* ManufacturerStringDescriptor = &DefaultManufacturerString;
+const USB_Descriptor_String_t* ProductStringDescriptor = &DefaultProductString;
 
 // This function is called by the library when in device mode, and
 // must be overridden (see library "USB Descriptors" documentation) by
@@ -61,12 +64,12 @@ uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,
           Size    = pgm_read_byte(&LanguageString.Header.Size);
           break;
         case STRING_ID_Manufacturer:
-          Address = &ManufacturerString;
-          Size    = pgm_read_byte(&ManufacturerString.Header.Size);
+          Address = ManufacturerStringDescriptor;
+          Size    = pgm_read_byte(&ManufacturerStringDescriptor->Header.Size);
           break;
         case STRING_ID_Product:
-          Address = &ProductString;
-          Size    = pgm_read_byte(&ProductString.Header.Size);
+          Address = ProductStringDescriptor;
+          Size    = pgm_read_byte(&ProductStringDescriptor->Header.Size);
           break;
         default:
           const int index = DescriptorNumber - LedStringBase - 1;

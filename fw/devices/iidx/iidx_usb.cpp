@@ -60,6 +60,7 @@ namespace IIDX {
     switch (hid_interface_info->Config.ReportINEndpoint.Address) {
       case JOYSTICK_IN_EPADDR: {
         auto joystick_report = (USB_JoystickReport_Data_t*)report_data;
+        *report_id = 0;
         *report_size = sizeof(*joystick_report);
 
         const auto report_buttons = remap_buttons(button_state, current_config.button_mapping);

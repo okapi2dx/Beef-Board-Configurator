@@ -61,8 +61,12 @@ namespace IIDX {
   };
 
   constexpr auto PROGMEM DefaultDeviceDescriptor = generate_device_descriptor(0xFEED, 0x0000);
-  constexpr auto PROGMEM EntryDeviceDescriptor = generate_device_descriptor(0x1CCF, 0x1018);
-  constexpr auto PROGMEM PremiumDeviceDescriptor = generate_device_descriptor(0x1CCF, 0x8048);
+  constexpr auto PROGMEM EntryDeviceDescriptor = generate_device_descriptor(0x1CCF, 0x1018, VERSION_BCD(1,0,0));
+  constexpr auto PROGMEM PremiumDeviceDescriptor = generate_device_descriptor(0x1CCF, 0x8048, VERSION_BCD(1,0,0));
+
+  const USB_Descriptor_String_t PROGMEM KonamiManufacturerString = USB_STRING_DESCRIPTOR(L"Konami Amusement");
+  const USB_Descriptor_String_t PROGMEM EntryProductString = USB_STRING_DESCRIPTOR(L"beatmania IIDX controller entry model");
+  const USB_Descriptor_String_t PROGMEM PremiumProductString = USB_STRING_DESCRIPTOR(L"beatmania IIDX controller premium model");
 
   constexpr auto PROGMEM ConfigurationDescriptor = generate_configuration_descriptor(sizeof(JoystickHIDReport), sizeof(LightsHIDReport));
 
@@ -114,13 +118,19 @@ namespace IIDX {
     switch (controller_type) {
       case ControllerType::IIDXEntry:
         ::DeviceDescriptor = &EntryDeviceDescriptor;
+        ::ManufacturerStringDescriptor = &KonamiManufacturerString;
+        ::ProductStringDescriptor = &EntryProductString;
         break;
       case ControllerType::IIDXPremium:
         ::DeviceDescriptor = &PremiumDeviceDescriptor;
+        ::ManufacturerStringDescriptor = &KonamiManufacturerString;
+        ::ProductStringDescriptor = &PremiumProductString;
         break;
       case ControllerType::Default:
       default:
         ::DeviceDescriptor = &DefaultDeviceDescriptor;
+        ::ManufacturerStringDescriptor = &::DefaultManufacturerString;
+        ::ProductStringDescriptor = &::DefaultProductString;
         break;
     }
     ::ConfigurationDescriptor = &ConfigurationDescriptor;

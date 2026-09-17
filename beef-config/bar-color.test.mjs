@@ -41,7 +41,7 @@ try {
     if (version >= 20) config.digital_tt = true;
     await updateConfig(config);
     assert.deepEqual([...sent.slice(6, 9)], [21, 130, 240]);
-    assert.deepEqual([...sent.slice(81, 84)], version >= 17 ? [85, 153, 255] : [0, 0, 0]);
+    assert.deepEqual([...sent.slice(81, 84)], version >= 17 ? [85, 153, 255] : []);
     if (version >= 19) assert.equal(sent[84], 1);
     if (version >= 20) assert.equal(sent[85], 1);
     const restored = new Config(new DataView(sent.buffer));
@@ -77,7 +77,7 @@ try {
       assert.equal(restored.button_led_fade_ms, 0);
       assert.equal(restored.button_led_brightness, 100);
       assert.equal(restored.button_led_invert, false);
-      assert.deepEqual([...sent.slice(87, 90)], [0, 0, 0]);
+      assert.deepEqual([...sent.slice(87, 90)], []);
     }
     if (version >= 24) {
       config.button_led_individual = true;

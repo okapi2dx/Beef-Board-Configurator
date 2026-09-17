@@ -75,17 +75,29 @@
 		if (value == null) return;
 		const logical = Number(value);
 		if (!Number.isInteger(logical) || logical < 0 || logical >= BUTTON_LAYOUT_LABELS.length) return;
-		const previous = config.button_mapping[physical];
-		if (previous === logical) return;
+		if (config.button_mapping[physical] === logical) return;
 
-		// Keep the mapping one-to-one. Selecting an already-used destination swaps
-		// the two physical buttons rather than creating duplicate outputs.
-		const otherPhysical = config.button_mapping.indexOf(logical);
+		// Multiple physical buttons may intentionally produce the same logical
+		// button, so only update the selected physical input.
 		const next = [...config.button_mapping];
 		next[physical] = logical;
-		if (otherPhysical >= 0) next[otherPhysical] = previous;
 		config.button_mapping = next;
 	}
+
+	// Match the controller monitor's physical IIDX layout exactly.
+	const IIDX_REMAP_POSITIONS = [
+		[45, 175],
+		[75, 105],
+		[105, 175],
+		[135, 105],
+		[165, 175],
+		[195, 105],
+		[225, 175],
+		[45, 15],
+		[105, 15],
+		[165, 15],
+		[225, 15]
+	];
 
 </script>
 
@@ -120,30 +132,41 @@
 					<div>
 						<h3 class="text-xl font-bold">{tr('ボタン配置入れ替え', 'Button Layout Remapping')}</h3>
 						<p class="text-sm text-muted-foreground">
-							{tr('物理ボタンを別の論理ボタンとして動作させます。重複する割り当てを選ぶと、2つのボタンを自動で入れ替えます。', 'Map each physical button to a different logical button. Choosing a destination already in use automatically swaps the two buttons.')}
+							{tr('物理ボタンを別の論理ボタンとして動作させます。同じ論理ボタンへの重複割り当ても可能です。', 'Map each physical button to a logical button. Multiple physical buttons may share the same logical button.')}
 						</p>
 					</div>
 				</div>
-				<div class="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-					{#each BUTTON_LAYOUT_LABELS as physicalLabel, i}
-						<div class="rounded-md border p-3">
-							<Label>{physicalLabel} → {BUTTON_LAYOUT_LABELS[config.button_mapping[i]]}</Label>
-							<Select.Root
-								type="single"
-								value={String(config.button_mapping[i])}
-								onValueChange={(value) => changeButtonMapping(i, value)}
+				<div class="remap-stage">
+					<div class="remap-keyboard">
+						{#each BUTTON_LAYOUT_LABELS as physicalLabel, i}
+							<div
+								class="remap-key"
+								class:black={i < 7 && i % 2 === 1}
+								class:function-key={i >= 7}
+								style:left={`${(IIDX_REMAP_POSITIONS[i][0] / 310) * 100}%`}
+								style:top={`${(IIDX_REMAP_POSITIONS[i][1] / 260) * 100}%`}
 							>
-								<Select.Trigger class="mt-2 w-full">{BUTTON_LAYOUT_LABELS[config.button_mapping[i]]}</Select.Trigger>
-								<Select.Content>
-									<Select.Group>
-										{#each BUTTON_LAYOUT_LABELS as logicalLabel, logical}
-											<Select.Item value={String(logical)}>{logicalLabel}</Select.Item>
-										{/each}
-									</Select.Group>
-								</Select.Content>
-							</Select.Root>
-						</div>
-					{/each}
+								<strong>{physicalLabel}</strong>
+								<span class="remap-arrow">↓</span>
+								<Select.Root
+									type="single"
+									value={String(config.button_mapping[i])}
+									onValueChange={(value) => changeButtonMapping(i, value)}
+								>
+									<Select.Trigger class="remap-select">
+										{BUTTON_LAYOUT_LABELS[config.button_mapping[i]]}
+									</Select.Trigger>
+									<Select.Content>
+										<Select.Group>
+											{#each BUTTON_LAYOUT_LABELS as logicalLabel, logical}
+												<Select.Item value={String(logical)}>{logicalLabel}</Select.Item>
+											{/each}
+										</Select.Group>
+									</Select.Content>
+								</Select.Root>
+							</div>
+						{/each}
+					</div>
 				</div>
 			</div>
 			<Separator class="mb-4" />
@@ -200,3 +223,78 @@
 		<div class="bg-muted mt-4 rounded-md p-4">{tr('割り当てるキーを押してください…', 'Press any key to bind...')}</div>
 	{/if}
 </div>
+
+<style>
+	.remap-stage {
+		background: #0f172a;
+		border-radius: 14px;
+		padding: 20px;
+		color: #e2e8f0;
+		min-width: 0;
+	}
+	.remap-keyboard {
+		position: relative;
+		width: min(100%, 760px);
+		aspect-ratio: 310 / 260;
+		margin: 0 auto;
+		padding: 1.5%;
+		background: linear-gradient(145deg, #e8edf2, #c4ced8);
+		border: 3px double #718094;
+		border-radius: 16px;
+		box-shadow: inset 0 0 0 1px #f8fafc;
+	}
+	.remap-key {
+		position: absolute;
+		width: 17%;
+		height: 22%;
+		border: 2px solid #7b8797;
+		border-radius: 8px;
+		background: #edf1f6;
+		color: #172033;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 3px;
+		padding: 6px;
+		box-shadow: inset 0 -4px #bac4d0;
+	}
+	.remap-key.function-key {
+		height: 17%;
+	}
+	.remap-key.black {
+		background: #202b3b;
+		color: #fff;
+	}
+	.remap-key strong {
+		font-size: 17px;
+		font-weight: 800;
+		line-height: 1;
+	}
+	.remap-arrow {
+		font-size: 17px;
+		font-weight: 700;
+		line-height: 1;
+	}
+	:global(.remap-select) {
+		height: 34px !important;
+		min-height: 34px !important;
+		width: 62px !important;
+		padding: 0 8px !important;
+		gap: 4px !important;
+		font-size: 14px !important;
+		font-weight: 700 !important;
+		line-height: 1 !important;
+		background: #fff !important;
+		color: #172033 !important;
+	}
+	@media (max-width: 760px) {
+		.remap-stage {
+			padding: 10px;
+			overflow-x: auto;
+		}
+		.remap-keyboard {
+			width: 680px;
+		}
+	}
+</style>

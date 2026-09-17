@@ -10,9 +10,12 @@ const path = require('node:path');
     const errors = [];
     page.on('pageerror', error => errors.push(String(error)));
     await page.getByRole('button', { name: '接続 / Connect Device' }).waitFor();
-    await page.getByRole('button', { name: '日本語', exact: true }).click();
+    await page.evaluate(() => localStorage.removeItem('beef-language'));
+    await page.reload();
+    await page.getByRole('button', { name: '接続 / Connect Device' }).waitFor();
+    await page.locator('#language').click();
     await page.getByRole('option', { name: 'English', exact: true }).click();
-    await page.getByRole('tab', { name: 'Config', exact: true }).waitFor();
+    await page.getByRole('button', { name: /^Input/ }).waitFor();
     assert.equal(await page.evaluate(() => localStorage.getItem('beef-language')), 'en');
     const selected = await app.evaluate(async ({ BrowserWindow }) => {
       const win = BrowserWindow.getAllWindows()[0];
@@ -29,12 +32,19 @@ const path = require('node:path');
     await page.evaluate(() => {
       const packet = new Uint8Array(1025); packet[0] = 1; packet[1] = 20; packet[5] = 1; packet[31] = 4; packet[81] = 16;
       window.testWrites = [];
-      const device = { productName: 'BEEF BOARD', opened: true, close: async () => {},
+      window.reconnectChooserUsed = false;
+      let restarted = false;
+      const device = { productName: 'beatmania IIDX controller premium model', opened: true, close: async () => {},
         vendorId: 0x1ccf, productId: 0x8048,
         receiveFeatureReport: async id => id === 3 ? new DataView(new Uint8Array([3, 0x78, 0x56, 0x34, 0x12]).buffer) : new DataView(packet.buffer),
-        sendFeatureReport: async (id, data) => { window.testWrites.push({ id, data: [...data] }); } };
-      Object.defineProperty(navigator.hid, 'requestDevice', { configurable: true, value: async () => [device] });
-      Object.defineProperty(navigator.hid, 'getDevices', { configurable: true, value: async () => [device] });
+        sendFeatureReport: async (id, data) => { window.testWrites.push({ id, data: [...data] }); if (id === 2 && data[0] === 3) restarted = true; } };
+      const entryDevice = { ...device, productName: 'beatmania IIDX controller entry model', productId: 0x1018, opened: false,
+        open: async function () { this.opened = true; }, close: async function () { this.opened = false; } };
+      Object.defineProperty(navigator.hid, 'requestDevice', { configurable: true, value: async () => {
+        if (restarted) window.reconnectChooserUsed = true;
+        return [restarted ? entryDevice : device];
+      } });
+      Object.defineProperty(navigator.hid, 'getDevices', { configurable: true, value: async () => restarted ? [] : [device] });
     });
     await page.getByRole('button', { name: '接続 / Connect Device' }).click();
     await page.getByText('IIDX Configuration', { exact: true }).waitFor();
@@ -42,15 +52,13 @@ const path = require('node:path');
     await toggle.click();
     await page.waitForFunction(() => window.testWrites.some(x => x.id === 1 && x.data[1] === 1));
     await page.screenshot({ path: path.join(__dirname, '../../../outputs/config-screen.png'), fullPage: true });
-    await page.getByRole('tab', { name: 'Firmware', exact: true }).click();
-    await page.getByText('0x12345678').waitFor();
-    await page.getByRole('tab', { name: 'Config', exact: true }).click();
     await page.getByRole('button', { name: 'Default', exact: true }).click();
     await page.getByRole('option', { name: 'IIDX Entry', exact: true }).click();
     await page.getByText('IIDX Configuration', { exact: true }).waitFor();
     await page.waitForFunction(() => window.testWrites.some(x => x.id === 1 && x.data[31] === 1));
     await page.waitForFunction(() => window.testWrites.some(x => x.id === 2 && x.data[0] === 3));
+    await page.waitForFunction(() => window.reconnectChooserUsed === true);
     assert.equal(errors.length, 0, errors.join('\n'));
-    console.log('PASS: packaged origin, WebHID/WebUSB, isolation, three IIDX identity modes, feature-report write, firmware hash; mock HID only');
+    console.log('PASS: packaged origin, WebHID/WebUSB, isolation, IIDX identity change and automatic WebHID re-grant; mock HID only');
   } finally { await app.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

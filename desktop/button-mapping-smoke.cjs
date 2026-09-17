@@ -67,19 +67,20 @@ const assert = require('node:assert/strict');
     await page.getByRole('button', { name: '接続 / Connect Device' }).click();
     await page.waitForTimeout(100);
     assert.equal(await page.evaluate(() => window.testWrites.length), 0, 'connecting must not rewrite config');
-    await page.getByRole('tab', { name: 'キー割り当て' }).click();
+    await page.getByRole('button', { name: /^キー割り当て/ }).click();
     await page.getByText('ボタン配置入れ替え', { exact: true }).waitFor();
 
-    const b1Card = page.getByText('B1 → B1', { exact: true }).locator('..');
+    const b1Label = page.getByText('B1', { exact: true }).first();
+    const b1Card = b1Label.locator('..');
     await b1Card.getByRole('button').click();
     await page.getByRole('option', { name: 'B4', exact: true }).click();
-    await page.waitForFunction(() => window.testWrites.some(w => w.id === 1 && w.data[127] === 3 && w.data[130] === 0));
+    await page.waitForFunction(() => window.testWrites.some(w => w.id === 1 && w.data[127] === 3 && w.data[130] === 3));
 
     const write = await page.evaluate(() => window.testWrites.filter(w => w.id === 1).at(-1));
     assert.equal(write.data.length, 138);
     assert.equal(write.data[127], 3); // physical B1 -> logical B4
-    assert.equal(write.data[130], 0); // physical B4 -> logical B1 (automatic swap)
-    console.log('PASS: button remap serializes and sends an exact 138-byte v28 config report');
+    assert.equal(write.data[130], 3); // physical B4 remains logical B4 (duplicate allowed)
+    console.log('PASS: duplicate button remap serializes and sends an exact 138-byte v28 config report');
   } finally {
     if (browser) await browser.close();
     server.close();

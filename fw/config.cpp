@@ -83,13 +83,8 @@ bool validate_config(const config &self) {
   if (self.button_led_individual > 1 || self.tt_curve > TurntableCurve::Dynamic) return false;
   for (uint8_t i = 0; i < BUTTONS; ++i)
     if (self.button_led_level[i] > 100 || self.button_led_inverted[i] > 1) return false;
-  uint16_t mapped_buttons = 0;
-  for (uint8_t i = 0; i < BUTTONS; ++i) {
+  for (uint8_t i = 0; i < BUTTONS; ++i)
     if (self.button_mapping[i] >= BUTTONS) return false;
-    const uint16_t bit = uint16_t(1) << self.button_mapping[i];
-    if (mapped_buttons & bit) return false;
-    mapped_buttons |= bit;
-  }
   if (self.tt_effect >= TurntableMode::Count) {
     return false;
   }

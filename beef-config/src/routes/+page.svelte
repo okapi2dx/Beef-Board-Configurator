@@ -4,7 +4,6 @@
 	import { Alert, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
 	import { Button } from '$lib/components/ui/button';
 	import { Skeleton } from '$lib/components/ui/skeleton';
-	import * as Tabs from '$lib/components/ui/tabs';
 
 	import ConfigScreen from '$lib/ConfigScreen.svelte';
 	import FirmwareScreen from '$lib/FirmwareScreen.svelte';
@@ -23,6 +22,7 @@
 
 	let browserSupported = $state(false);
 	let activeTab = $state<string>(Tab.Config);
+	let settingsSection = $state('input');
 	let loading = $state(true);
 	let nativeFlash = $state(false);
 	let updateInfo = $state<Awaited<ReturnType<NonNullable<Window['beefNative']>['checkForUpdates']>>>(null);
@@ -54,10 +54,10 @@
 	});
 </script>
 
-<main class="mx-auto max-w-(--breakpoint-lg) p-4">
+<main class="app-shell">
 	<title>Beef Board Configurator v1.00.1</title>
-	<div class="flex justify-between">
-		<h1 class="mb-4 flex items-baseline gap-2 text-2xl font-bold">
+	<div class="app-header">
+		<h1 class="flex items-baseline gap-2 text-2xl font-bold">
 			<span>Beef Board Configurator</span><span class="text-base font-semibold text-muted-foreground">v1.00.1</span>
 		</h1>
 		<div class="flex items-center gap-3">
@@ -93,27 +93,246 @@
 			</AlertDescription>
 		</Alert>
 	{:else}
-		{#if !appState.device}
-			<p class="mb-4 text-sm text-muted-foreground">BEEF BOARDをUSBで接続し、「接続」を押してください。設定画面はアプリ内で動作します。</p>
-			<Button onclick={connectDevice} disabled={appState.disableConfigTab} class="mb-4">接続 / Connect Device</Button>
-		{/if}
-			<Tabs.Root bind:value={activeTab}>
-				<Tabs.List class="mb-4 flex w-full flex-row justify-center">
-					<Tabs.Trigger value={Tab.Config} disabled={appState.disableConfigTab} class="grow"
-						>{tr('設定', 'Config')}</Tabs.Trigger
-					>
-					<Tabs.Trigger value={Tab.Firmware} class="grow">{tr('ファームウェア', 'Firmware')}</Tabs.Trigger>
-				</Tabs.List>
-				<Tabs.Content value={Tab.Config}>{#if appState.device}<ConfigScreen active={activeTab === Tab.Config} />{:else}<p>{tr('設定する場合は機器に接続してください。ファームウェアは「ファームウェア」タブから選択できます。', 'Connect a device to configure it. Firmware can be selected from the Firmware tab.')}</p>{/if}</Tabs.Content>
-				<Tabs.Content value={Tab.Firmware}>{#if nativeFlash}<NativeFirmwareScreen />{:else}<FirmwareScreen />{/if}</Tabs.Content>
-			</Tabs.Root>
+		<div class="desktop-layout">
+			<aside class="app-sidebar">
+				<div class="sidebar-device-card">
+					<div class="device-status-row">
+						<span class:connected={!!appState.device} class="status-dot"></span>
+						<div>
+							<div class="status-title">{appState.device ? tr('接続済み', 'Connected') : tr('未接続', 'Disconnected')}</div>
+							<div class="status-subtitle">{appState.device?.productName ?? 'BEEF BOARD'}</div>
+						</div>
+					</div>
+					{#if !appState.device}
+						<Button onclick={connectDevice} disabled={appState.disableConfigTab} class="w-full">接続 / Connect Device</Button>
+					{/if}
+				</div>
 
-		{#if appState.error}
-			<Alert variant="destructive" class="mt-4">
-				<AlertTitle>{tr('エラー', 'Error')}</AlertTitle>
-				<AlertDescription>{appState.error}</AlertDescription>
-			</Alert>
-		{/if}
+				<nav class="sidebar-nav" aria-label={tr('メインメニュー', 'Main menu')}>
+					<div class="sidebar-label">{tr('コントローラー設定', 'CONTROLLER')}</div>
+					<button class:active={activeTab === Tab.Config && settingsSection === 'input'} class="sidebar-item" disabled={!appState.device || appState.disableConfigTab} onclick={() => { activeTab = Tab.Config; settingsSection = 'input'; }}>
+						<span class="nav-title">{tr('入力設定', 'Input')}</span>
+						<span class="nav-subtitle">{tr('入力モード・ターンテーブル', 'Mode & turntable')}</span>
+					</button>
+					<button class:active={activeTab === Tab.Config && settingsSection === 'led'} class="sidebar-item" disabled={!appState.device || appState.disableConfigTab} onclick={() => { activeTab = Tab.Config; settingsSection = 'led'; }}>
+						<span class="nav-title">{tr('LED設定', 'LEDs')}</span>
+						<span class="nav-subtitle">{tr('ボタン・ターンテーブル・ライトバー', 'Buttons, turntable & bar')}</span>
+					</button>
+					<button class:active={activeTab === Tab.Config && settingsSection === 'keys'} class="sidebar-item" disabled={!appState.device || appState.disableConfigTab} onclick={() => { activeTab = Tab.Config; settingsSection = 'keys'; }}>
+						<span class="nav-title">{tr('キー割り当て', 'Key Bindings')}</span>
+						<span class="nav-subtitle">{tr('キー・ボタン配置', 'Keys & button layout')}</span>
+					</button>
+					<button class:active={activeTab === Tab.Config && settingsSection === 'monitor'} class="sidebar-item" disabled={!appState.device || appState.disableConfigTab} onclick={() => { activeTab = Tab.Config; settingsSection = 'monitor'; }}>
+						<span class="nav-title">{tr('コントローラーモニター', 'Controller Monitor')}</span>
+						<span class="nav-subtitle">{tr('入力状態をリアルタイム表示', 'Live input status')}</span>
+					</button>
+
+					<div class="sidebar-label sidebar-label-spaced">{tr('メンテナンス', 'MAINTENANCE')}</div>
+					<button class:active={activeTab === Tab.Firmware} class="sidebar-item" onclick={() => { activeTab = Tab.Firmware; }}>
+						<span class="nav-title">{tr('ファームウェア', 'Firmware')}</span>
+						<span class="nav-subtitle">{tr('更新・書き込み', 'Update & flash')}</span>
+					</button>
+				</nav>
+
+				{#if appState.device && firmwareInfo}
+					<div class="sidebar-footer">
+						<span>{tr('現在のファームウェア', 'Firmware')}</span>
+						<strong>{firmwareInfo.version ? `V${firmwareInfo.version}` : '-'}</strong>
+					</div>
+				{/if}
+			</aside>
+
+			<section class="app-content">
+				{#if activeTab === Tab.Config}
+					{#if appState.device}
+						<ConfigScreen active={true} bind:settingsTab={settingsSection} showTabs={false} />
+					{:else}
+						<div class="empty-state">
+							<h2>{tr('BEEF BOARDを接続してください', 'Connect your BEEF BOARD')}</h2>
+							<p>{tr('左側の「接続」ボタンからコントローラーに接続すると設定を変更できます。', 'Use the Connect button on the left to start configuring the controller.')}</p>
+						</div>
+					{/if}
+				{:else}
+					{#if nativeFlash}<NativeFirmwareScreen />{:else}<FirmwareScreen />{/if}
+				{/if}
+
+				{#if appState.error}
+					<Alert variant="destructive" class="mt-4">
+						<AlertTitle>{tr('エラー', 'Error')}</AlertTitle>
+						<AlertDescription>{appState.error}</AlertDescription>
+					</Alert>
+				{/if}
+			</section>
+		</div>
 	{/if}
 </main>
+
+<style>
+	.app-shell {
+		width: min(1500px, 100%);
+		margin: 0 auto;
+		padding: 18px 22px 28px;
+	}
+	.app-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 18px;
+		margin-bottom: 18px;
+	}
+	.desktop-layout {
+		display: grid;
+		grid-template-columns: 250px minmax(0, 1fr);
+		gap: 20px;
+		align-items: start;
+	}
+	.app-sidebar {
+		position: sticky;
+		top: 18px;
+		border: 1px solid var(--border);
+		border-radius: 18px;
+		background: var(--card);
+		padding: 14px;
+		box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+	}
+	.sidebar-device-card {
+		padding: 6px 6px 14px;
+		border-bottom: 1px solid var(--border);
+	}
+	.device-status-row {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		margin-bottom: 12px;
+	}
+	.status-dot {
+		width: 10px;
+		height: 10px;
+		border-radius: 999px;
+		background: #94a3b8;
+		box-shadow: 0 0 0 4px rgba(148, 163, 184, 0.16);
+		flex: 0 0 auto;
+	}
+	.status-dot.connected {
+		background: #22c55e;
+		box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.14);
+	}
+	.status-title {
+		font-size: 14px;
+		font-weight: 700;
+	}
+	.status-subtitle,
+	.nav-subtitle {
+		font-size: 11px;
+		color: var(--muted-foreground);
+	}
+	.sidebar-nav {
+		display: flex;
+		flex-direction: column;
+		gap: 5px;
+		padding-top: 14px;
+	}
+	.sidebar-label {
+		padding: 0 9px 5px;
+		font-size: 10px;
+		font-weight: 800;
+		letter-spacing: 0.11em;
+		color: var(--muted-foreground);
+	}
+	.sidebar-label-spaced {
+		margin-top: 10px;
+	}
+	.sidebar-item {
+		width: 100%;
+		border: 1px solid transparent;
+		border-radius: 11px;
+		background: transparent;
+		padding: 10px 11px;
+		text-align: left;
+		transition: background 120ms ease, border-color 120ms ease, transform 120ms ease;
+	}
+	.sidebar-item:not(:disabled):hover {
+		background: var(--muted);
+		transform: translateX(1px);
+	}
+	.sidebar-item.active {
+		border-color: var(--border);
+		background: var(--muted);
+		box-shadow: inset 3px 0 0 currentColor;
+	}
+	.sidebar-item:disabled {
+		opacity: 0.42;
+		cursor: not-allowed;
+	}
+	.nav-title {
+		display: block;
+		font-size: 14px;
+		font-weight: 750;
+		line-height: 1.35;
+	}
+	.nav-subtitle {
+		display: block;
+		margin-top: 2px;
+		line-height: 1.35;
+	}
+	.sidebar-footer {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 8px;
+		margin-top: 14px;
+		padding: 11px 9px 2px;
+		border-top: 1px solid var(--border);
+		font-size: 11px;
+		color: var(--muted-foreground);
+	}
+	.sidebar-footer strong {
+		color: var(--foreground);
+	}
+	.app-content {
+		min-width: 0;
+	}
+	.empty-state {
+		min-height: 340px;
+		display: grid;
+		place-content: center;
+		gap: 8px;
+		text-align: center;
+		border: 1px dashed var(--border);
+		border-radius: 18px;
+		background: var(--card);
+		padding: 32px;
+	}
+	.empty-state h2 {
+		font-size: 20px;
+		font-weight: 800;
+	}
+	.empty-state p {
+		max-width: 520px;
+		color: var(--muted-foreground);
+	}
+	@media (max-width: 820px) {
+		.app-shell {
+			padding: 12px;
+		}
+		.app-header {
+			align-items: flex-start;
+			flex-direction: column;
+		}
+		.desktop-layout {
+			grid-template-columns: 1fr;
+		}
+		.app-sidebar {
+			position: static;
+		}
+		.sidebar-nav {
+			display: grid;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+		.sidebar-label,
+		.sidebar-footer {
+			grid-column: 1 / -1;
+		}
+	}
+</style>
 
