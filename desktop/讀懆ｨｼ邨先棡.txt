@@ -1,0 +1,20 @@
+検証日: 2026-09-11
+対象: Beef-Board-Configurator-1.0.0-x64.exe
+サイズ: 100109807 bytes
+SHA256: 280A32E36DAEAA5076FBD7010EF16CDF29B20855F3F032CC8F24AAC4672D225D
+署名: NotSigned
+
+成功:
+- Svelteチェック: エラー0、既存SliderInputの警告2
+- 静的UIビルド、Windows x64 portableビルド
+- Nodeテスト4件: 許可オリジン、HID/USB機器フィルター、疎なHEXアドレス保持、対応外アドレス拒否
+- 開発版と配布版win-unpacked: 実ElectronウィンドウでWebHID/WebUSB、有効なsecure context、Node分離
+- 実Electronのselect-hid-device/select-usb-deviceハンドラーへ模擬イベントを渡して対象IDの選択を確認
+- 模擬HIDでIIDX設定画面、Feature Report設定送信、SDVX切替とモード送信、Firmware Commit表示を確認
+- ポータブルEXE通常起動: MainWindowTitle=Beef Board Configurator、Responding=True、検証後に正常なウィンドウ終了を要求
+- 設定画面画像の目視確認
+
+制限:
+ポータブル自己展開ランチャーへPlaywrightを直接接続する検査は待機したため中断。同じビルドのwin-unpacked EXEで自動画面検査を実施し、ポータブルEXEは通常起動で別途確認。
+実BEEF BOARDの読み書き、保存後の再接続、DFU書き込み、複数実機の選択、WinUSBドライバー環境は未検証。実機・ドライバーの変更は実行していない。
+start-screen.pngとconfig-screen.pngは自動検証中の画面で、config-screenの値は模擬データ。
