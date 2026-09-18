@@ -212,7 +212,7 @@
 					<Switch label={tr('ボタンLEDを反転', 'Invert Button LEDs')} bind:checked={config.button_led_invert}>{tr('OFFでは押すと点灯し、離すと消灯します。ONでは離している間に点灯し、押すと消灯します。フェードアウトは消灯時に適用します。', 'OFF lights the LED while pressed and turns it off on release. ON lights it while released and turns it off when pressed. Fade-out applies whenever it turns off.')}</Switch>
 					
 				{:else}
-					<p class="mb-4">{tr('ボタンLEDの調整にはファームウェア1.10.0以降へ更新してください。', 'Update to firmware 1.10.0 or later to adjust button LEDs.')}</p>
+					<p class="mb-4">{tr('ボタンLEDの調整にはファームウェアV1.00以降へ更新してください。', 'Update to firmware V1.00 or later to adjust button LEDs.')}</p>
 				{/if}
 				{#if config.version >= 19}
 					<Switch label={tr('ターンテーブルとライトバーの発光効果を連動', 'Link Turntable and Light Bar Effects')} bind:checked={config.link_bar_effect} />

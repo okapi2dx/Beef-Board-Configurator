@@ -12,6 +12,11 @@ const [, major, minor, patch] = match;
 const display = Number(patch) === 0
   ? `V${major}.${minor.padStart(2, '0')}`
   : `V${major}.${minor.padStart(2, '0')}.${Number(patch)}`;
+const configuratorPackagePath = path.join(root, 'beef-config', 'package.json');
+const configuratorPackageJson = JSON.parse(fs.readFileSync(configuratorPackagePath, 'utf8'));
+configuratorPackageJson.version = version;
+const configuratorPackageText = JSON.stringify(configuratorPackageJson, null, '\t') + '\n';
+
 const packagePath = path.join(root, 'desktop', 'package.json');
 const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
 packageJson.version = version;
@@ -35,6 +40,10 @@ const normalizeEol = (text) => text.replace(/\r\n/g, '\n');
 
 if (process.argv.includes('--check')) {
   let ok = true;
+  if (normalizeEol(fs.readFileSync(configuratorPackagePath, 'utf8')) !== configuratorPackageText) {
+    console.error('beef-config/package.json is not synchronized with VERSION');
+    ok = false;
+  }
   if (normalizeEol(fs.readFileSync(packagePath, 'utf8')) !== packageText) {
     console.error('desktop/package.json is not synchronized with VERSION');
     ok = false;
@@ -50,6 +59,7 @@ if (process.argv.includes('--check')) {
   if (!ok) process.exit(1);
   console.log(`Version files are synchronized: ${display}`);
 } else {
+  fs.writeFileSync(configuratorPackagePath, configuratorPackageText);
   fs.writeFileSync(packagePath, packageText);
   fs.writeFileSync(packageLockPath, packageLockText);
   fs.writeFileSync(fwVersionPath, fwVersionText);

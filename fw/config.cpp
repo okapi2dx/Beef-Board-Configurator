@@ -260,8 +260,8 @@ void config_update(config* self) {
       self->tt_curve = TurntableCurve::Linear;
       self->version++;
     case 24:
-      // Keep the legacy tail layout for EEPROM/HID compatibility with 1.11.
-      // This release restores 1.10 lighting and linear turntable behavior.
+      // Keep the legacy tail layout for EEPROM/HID compatibility.
+      // Preserve the established lighting and linear turntable behavior.
       self->button_led_individual = 0;
       self->tt_curve = TurntableCurve::Linear;
       self->version++;

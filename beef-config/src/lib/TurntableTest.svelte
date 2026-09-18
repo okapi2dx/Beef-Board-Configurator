@@ -53,7 +53,7 @@
   <div class="mt-2 flex justify-between text-xs text-muted-foreground"><span>0</span><span>128</span><span>255</span></div>
   <p class="mt-2 text-sm text-muted-foreground">{tr('アナログ設定では、感度・デッドゾーン・保持時間・ディレイを反映したX軸値を表示します。実入力中はX軸をそのまま反映し、入力停止後は最後の方向へ設定した保持時間ぶんX軸入力を続けます。255を超えると0に戻ります。デジタル設定では、ゲームへはX軸ではなくTT-/TT+の方向入力を送り、入力停止後は最後の方向を設定した保持時間だけ維持します。', 'In analog mode, this shows the X-axis value after sensitivity, deadzone, hold time and delay. Real X-axis movement is reflected while input is active. After input stops, X-axis input continues in the last direction for the configured hold time and wraps from 255 to 0. In digital mode, the game receives TT-/TT+ direction input instead of the X-axis, and the last direction is held for the configured hold time after input stops.')}</p>
   {#if digital}<p class="mt-1 text-sm text-muted-foreground">{tr('デジタル設定中は、確認用のアナログX軸値を表示します。ゲームへ送るデジタル入力とは異なります。', 'In digital mode, this displays the analog X-axis preview, not the digital input sent to the game.')}</p>{/if}
-  {#if !supported}<p class="mt-2 text-sm">{tr('表示するにはファームウェア1.10.1へ更新してください。', 'Update to firmware 1.10.1 to enable this display.')}</p>{/if}
+  {#if !supported}<p class="mt-2 text-sm">{tr('表示するにはファームウェアV1.00以降へ更新してください。', 'Update to firmware V1.00 or later to enable this display.')}</p>{/if}
 </section>
 
 
