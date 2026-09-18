@@ -91,6 +91,13 @@ export async function waitForReconnection(timeoutMs = 15000): Promise<void> {
   throw new Error('Controller restarted, but automatic reconnection timed out');
 }
 
+export async function detectAuthorizedDevice(): Promise<HIDDevice | null> {
+  const selectedDevice = (await navigator.hid.getDevices()).find(isBeefDevice);
+  if (!selectedDevice) return null;
+  if (!selectedDevice.opened) await selectedDevice.open();
+  return selectedDevice;
+}
+
 export async function detectDevice(): Promise<HIDDevice | null> {
   const devices = await navigator.hid.requestDevice({
     filters: beefHidFilters

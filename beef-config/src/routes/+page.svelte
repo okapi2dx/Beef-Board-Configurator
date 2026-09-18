@@ -15,7 +15,7 @@
 	import { formatDisplayVersion } from '$lib/types/version';
 	import { Command, readFirmwareInfo, sendCommand, waitForReconnection, type FirmwareInfo } from '$lib/types/hid';
 
-	import { connectDevice, appState } from '$lib/types/state.svelte';
+	import { connectDevice, reconnectDevice, appState } from '$lib/types/state.svelte';
 
 	const Tab = {
 		Config: 'config',
@@ -75,9 +75,20 @@
 			<h1 class="flex items-baseline gap-2 text-2xl font-bold">
 				<span>Beef Board Configurator</span>{#if appVersion}<span class="text-base font-semibold text-muted-foreground">{formatDisplayVersion(appVersion)}</span>{/if}
 			</h1>
-			{#if !appState.device}
-				<Button variant="outline" class="reset-action-button" onclick={connectDevice} disabled={appState.disableConfigTab}>接続 / Connect Device</Button>
-			{/if}
+			<Button
+				variant="outline"
+				class="reset-action-button"
+				onclick={() => appState.device ? reconnectDevice() : connectDevice()}
+				disabled={appState.disableConfigTab || appState.connecting}
+			>
+				{#if appState.connecting}
+					{tr('接続中…', 'Connecting…')}
+				{:else if appState.device}
+					{tr('再接続', 'Reconnect')}
+				{:else}
+					{tr('接続', 'Connect')}
+				{/if}
+			</Button>
 		</div>
 		<div class="flex items-center gap-3">
 			<LanguageSelect />
