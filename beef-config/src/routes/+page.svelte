@@ -139,18 +139,17 @@
 
 					<div class="sidebar-label sidebar-label-spaced">{tr('メンテナンス', 'MAINTENANCE')}</div>
 					<button class:active={activeTab === Tab.Firmware} class="sidebar-item" onclick={() => { activeTab = Tab.Firmware; }}>
-						<span class="nav-title">{tr('ファームウェア', 'Firmware')}</span>
+						<span class="nav-title firmware-nav-title">
+							<span>{tr('ファームウェア', 'Firmware')}</span>
+							{#if appState.device && firmwareInfo}
+								<span class="firmware-nav-version">{firmwareInfo.version ? `V${firmwareInfo.version}` : '-'}</span>
+							{/if}
+						</span>
 						<span class="nav-subtitle">{tr('更新・書き込み', 'Update & flash')}</span>
 					</button>
 
 				</nav>
 
-				{#if appState.device && firmwareInfo}
-					<div class="sidebar-footer">
-						<span>{tr('現在のファームウェア', 'Firmware')}</span>
-						<strong>{firmwareInfo.version ? `V${firmwareInfo.version}` : '-'}</strong>
-					</div>
-				{/if}
 				<div class="sidebar-reset">
 					<AlertDialog.Root bind:open={resetDialogOpen}>
 						<AlertDialog.Trigger>
@@ -348,24 +347,22 @@
 		font-weight: 750;
 		line-height: 1.35;
 	}
+	.firmware-nav-title {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 8px;
+	}
+	.firmware-nav-version {
+		font-size: 11px;
+		font-weight: 700;
+		color: var(--muted-foreground);
+		white-space: nowrap;
+	}
 	.nav-subtitle {
 		display: block;
 		margin-top: 2px;
 		line-height: 1.35;
-	}
-	.sidebar-footer {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 8px;
-		margin-top: 14px;
-		padding: 11px 9px 2px;
-		border-top: 1px solid var(--border);
-		font-size: 11px;
-		color: var(--muted-foreground);
-	}
-	.sidebar-footer strong {
-		color: var(--foreground);
 	}
 	.app-content {
 		min-width: 0;
@@ -422,8 +419,7 @@
 			display: grid;
 			grid-template-columns: repeat(2, minmax(0, 1fr));
 		}
-		.sidebar-label,
-		.sidebar-footer {
+		.sidebar-label {
 			grid-column: 1 / -1;
 		}
 		.sidebar-reset {
