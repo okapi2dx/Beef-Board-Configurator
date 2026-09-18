@@ -1,4 +1,5 @@
 name: One-shot Bugfix Validation
+# rerun after reset behavior correction
 
 on:
   push:
