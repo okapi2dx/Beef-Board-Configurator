@@ -96,13 +96,18 @@ export class DfuDevice extends EventEmitter {
     value: number,
     data?: Uint8Array
   ): Promise<void> {
+    let payload: Uint8Array<ArrayBuffer> | undefined;
+    if (data) {
+      payload = new Uint8Array(data.byteLength);
+      payload.set(data);
+    }
     const result = await this._device.controlTransferOut({
       requestType: 'class',
       recipient: 'interface',
       request,
       value,
       index: this.interfaceNumber,
-    }, data);
+    }, payload);
     if (result.status !== 'ok') {
       throw new Error(`DFU command ${request} failed`);
     }
