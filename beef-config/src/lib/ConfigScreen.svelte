@@ -3,8 +3,6 @@
 	import * as Tabs from '$lib/components/ui/tabs';
 
 	import * as Accordion from '$lib/components/ui/accordion/index.js';
-	import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
-	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label/index.js';
 	import * as Select from '$lib/components/ui/select';
@@ -328,34 +326,6 @@
 
 {/if}
 
-{#if settingsTab !== 'monitor'}
-<div class="mt-4">
-	<AlertDialog.Root>
-		<AlertDialog.Trigger>
-			{#snippet child({ props })}
-				<Button {...props} variant="destructive">{tr('設定を初期化', 'Reset Config')}</Button>
-			{/snippet}
-		</AlertDialog.Trigger>
-		<AlertDialog.Content>
-			<AlertDialog.Header>
-				<AlertDialog.Title>{tr('設定を初期化しますか？', 'Reset configuration?')}</AlertDialog.Title>
-				<AlertDialog.Description>
-					{tr('すべての設定を初期値に戻し、コントローラーを切断します。この操作は元に戻せません。', 'This resets all settings to defaults and disconnects the controller. This action cannot be undone.')}
-				</AlertDialog.Description>
-			</AlertDialog.Header>
-			<AlertDialog.Footer>
-				<AlertDialog.Action
-					onclick={async () => {
-						await sendCommand(Command.ResetConfig);
-						await waitForReconnection();
-					}}>{tr('続行', 'Continue')}</AlertDialog.Action
-				>
-				<AlertDialog.Cancel>{tr('キャンセル', 'Cancel')}</AlertDialog.Cancel>
-			</AlertDialog.Footer>
-		</AlertDialog.Content>
-	</AlertDialog.Root>
-</div>
-{/if}
 <style>
   :global(.settings-card) { border: 1px solid var(--border); border-radius: 1rem; padding: 1.25rem; background: var(--card); }
   :global(.settings-card .mb-4) { margin-bottom: 0.75rem; }

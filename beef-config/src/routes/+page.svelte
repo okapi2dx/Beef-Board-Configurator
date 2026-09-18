@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 
 	import { Alert, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
+	import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
 	import { Button } from '$lib/components/ui/button';
 	import { Skeleton } from '$lib/components/ui/skeleton';
 
@@ -11,7 +12,7 @@
 	import LightDarkModeToggle from '$lib//LightDarkModeToggle.svelte';
 	import LanguageSelect from '$lib/LanguageSelect.svelte';
 	import { initializeLocale, tr } from '$lib/types/locale.svelte';
-	import { readFirmwareInfo, type FirmwareInfo } from '$lib/types/hid';
+	import { Command, readFirmwareInfo, sendCommand, waitForReconnection, type FirmwareInfo } from '$lib/types/hid';
 
 	import { connectDevice, appState } from '$lib/types/state.svelte';
 
@@ -136,6 +137,40 @@
 						<span class="nav-title">{tr('ファームウェア', 'Firmware')}</span>
 						<span class="nav-subtitle">{tr('更新・書き込み', 'Update & flash')}</span>
 					</button>
+
+					<AlertDialog.Root>
+						<AlertDialog.Trigger>
+							{#snippet child({ props })}
+								<button
+									{...props}
+									class="sidebar-item sidebar-item-danger"
+									disabled={!appState.device || appState.disableConfigTab}
+								>
+									<span class="nav-title">{tr('設定を初期化', 'Reset Config')}</span>
+									<span class="nav-subtitle">{tr('すべての設定を初期値に戻す', 'Restore all settings to defaults')}</span>
+								</button>
+							{/snippet}
+						</AlertDialog.Trigger>
+						<AlertDialog.Content>
+							<AlertDialog.Header>
+								<AlertDialog.Title>{tr('設定を初期化しますか？', 'Reset configuration?')}</AlertDialog.Title>
+								<AlertDialog.Description>
+									{tr('すべての設定を初期値に戻し、コントローラーを切断します。この操作は元に戻せません。', 'This resets all settings to defaults and disconnects the controller. This action cannot be undone.')}
+								</AlertDialog.Description>
+							</AlertDialog.Header>
+							<AlertDialog.Footer>
+								<AlertDialog.Action
+									onclick={async () => {
+										await sendCommand(Command.ResetConfig);
+										await waitForReconnection();
+									}}
+								>
+									{tr('続行', 'Continue')}
+								</AlertDialog.Action>
+								<AlertDialog.Cancel>{tr('キャンセル', 'Cancel')}</AlertDialog.Cancel>
+							</AlertDialog.Footer>
+						</AlertDialog.Content>
+					</AlertDialog.Root>
 				</nav>
 
 				{#if appState.device && firmwareInfo}
@@ -263,6 +298,14 @@
 		border-color: var(--border);
 		background: var(--muted);
 		box-shadow: inset 3px 0 0 currentColor;
+	}
+	.sidebar-item-danger {
+		margin-top: 4px;
+		color: var(--destructive);
+	}
+	.sidebar-item-danger:not(:disabled):hover {
+		background: color-mix(in srgb, var(--destructive) 10%, transparent);
+		border-color: color-mix(in srgb, var(--destructive) 25%, transparent);
 	}
 	.sidebar-item:disabled {
 		opacity: 0.42;
