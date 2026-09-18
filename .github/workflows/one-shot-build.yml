@@ -1,4 +1,4 @@
-name: One-shot Dependency Refresh
+name: One-shot Dependency Probe
 
 on:
   push:
@@ -10,33 +10,20 @@ permissions:
   contents: read
 
 jobs:
-  refresh:
+  probe:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Refresh dependencies within declared ranges
+      - name: Probe current package releases
         working-directory: beef-config
         shell: bash
         run: |
-          npm update --package-lock-only
-          npm audit fix --package-lock-only || true
-          npm ci
-          npm run check
-          npm run test
-          npm run build
-          npm audit --json > audit.json || true
-          node -e "const a=require('./audit.json'); console.log('AUDIT', JSON.stringify(a.metadata?.vulnerabilities||{}))"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: refreshed-beef-config-deps
-          path: |
-            beef-config/package.json
-            beef-config/package-lock.json
-            beef-config/audit.json
-          if-no-files-found: error
-          retention-days: 1
+          echo "KIT=$(npm view @sveltejs/kit version)"
+          echo "ADAPTER_STATIC=$(npm view @sveltejs/adapter-static version)"
+          echo "ADAPTER_AUTO=$(npm view @sveltejs/adapter-auto version)"
+          echo "SVELTE=$(npm view svelte version)"
+          echo "VITE=$(npm view vite version)"
+          echo "TYPESCRIPT=$(npm view typescript version)"
