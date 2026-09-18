@@ -304,8 +304,8 @@
 		flex-direction: row-reverse;
 	}
 	.disc-area {
-		width: 47.5%;
-		flex-shrink: 0;
+		flex: 1 1 0;
+		min-width: 0;
 		display: grid;
 		place-items: center;
 		padding: 1.5%;
@@ -339,7 +339,9 @@
 		font-size: 14px;
 	}
 	.bar {
-		width: 3.2% !important;
+		flex: 0 0 3.2%;
+		width: auto !important;
+		box-sizing: border-box;
 		height: 100%;
 		min-height: 180px;
 		border: 1px solid #718094;
@@ -349,6 +351,7 @@
 	.keyboard {
 		position: relative;
 		flex: 1 1 0;
+		min-width: 0;
 		aspect-ratio: auto;
 		padding: 1.4%;
 		background: linear-gradient(145deg, #e8edf2, #c4ced8);
