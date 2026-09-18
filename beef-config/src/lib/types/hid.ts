@@ -1,4 +1,4 @@
-import { appState, onDisconnect, connectDevice } from '$lib/types/state.svelte';
+import { appState, onDisconnect } from '$lib/types/state.svelte';
 
 export enum ReportId {
   Config = 1,
