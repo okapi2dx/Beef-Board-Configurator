@@ -137,6 +137,11 @@
 					</div>
 				</div>
 				<div class="remap-stage">
+					<div class="remap-legend">
+						<span>{tr('物理ボタン', 'Physical')}</span>
+						<span class="remap-legend-arrow">→</span>
+						<span>{tr('動作するボタン', 'Logical')}</span>
+					</div>
 					<div class="remap-keyboard">
 						{#each BUTTON_LAYOUT_LABELS as physicalLabel, i}
 							<div
@@ -228,20 +233,34 @@
 	.remap-stage {
 		background: #0f172a;
 		border-radius: 14px;
-		padding: 20px;
+		padding: 14px 16px 16px;
 		color: #e2e8f0;
 		min-width: 0;
 	}
+	.remap-legend {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 8px;
+		margin-bottom: 10px;
+		font-size: 11px;
+		font-weight: 700;
+		color: #cbd5e1;
+	}
+	.remap-legend-arrow {
+		color: #60a5fa;
+		font-size: 14px;
+	}
 	.remap-keyboard {
 		position: relative;
-		width: min(100%, 760px);
+		width: min(100%, 600px);
 		aspect-ratio: 310 / 260;
 		margin: 0 auto;
 		padding: 1.5%;
 		background: linear-gradient(145deg, #e8edf2, #c4ced8);
-		border: 3px double #718094;
-		border-radius: 16px;
-		box-shadow: inset 0 0 0 1px #f8fafc;
+		border: 2px solid #718094;
+		border-radius: 14px;
+		box-shadow: inset 0 0 0 1px #f8fafc, 0 8px 20px rgba(2, 6, 23, 0.22);
 	}
 	.remap-key {
 		position: absolute;
@@ -255,9 +274,18 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 3px;
-		padding: 6px;
-		box-shadow: inset 0 -4px #bac4d0;
+		gap: 2px;
+		padding: 5px;
+		box-shadow: inset 0 -3px #bac4d0;
+		transition: background 120ms ease, border-color 120ms ease, color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
+	}
+	.remap-key:hover,
+	.remap-key:focus-within {
+		background: #2563eb;
+		border-color: #60a5fa;
+		color: #fff;
+		box-shadow: inset 0 -3px rgba(30, 64, 175, 0.75), 0 0 0 3px rgba(59, 130, 246, 0.2);
+		transform: translateY(-1px);
 	}
 	.remap-key.function-key {
 		height: 17%;
@@ -266,27 +294,40 @@
 		background: #202b3b;
 		color: #fff;
 	}
+	.remap-key.black:hover,
+	.remap-key.black:focus-within {
+		background: #1d4ed8;
+		border-color: #60a5fa;
+	}
 	.remap-key strong {
-		font-size: 17px;
+		font-size: 15px;
 		font-weight: 800;
 		line-height: 1;
 	}
 	.remap-arrow {
-		font-size: 17px;
-		font-weight: 700;
+		font-size: 14px;
+		font-weight: 800;
 		line-height: 1;
+		opacity: 0.78;
 	}
 	:global(.remap-select) {
-		height: 34px !important;
-		min-height: 34px !important;
-		width: 62px !important;
-		padding: 0 8px !important;
-		gap: 4px !important;
-		font-size: 14px !important;
-		font-weight: 700 !important;
+		height: 30px !important;
+		min-height: 30px !important;
+		width: 58px !important;
+		padding: 0 7px !important;
+		gap: 3px !important;
+		font-size: 13px !important;
+		font-weight: 800 !important;
 		line-height: 1 !important;
 		background: #fff !important;
 		color: #172033 !important;
+		border-color: #94a3b8 !important;
+		cursor: pointer !important;
+	}
+	:global(.remap-select:hover),
+	:global(.remap-select:focus-visible) {
+		border-color: #60a5fa !important;
+		box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.22) !important;
 	}
 	@media (max-width: 760px) {
 		.remap-stage {
@@ -294,7 +335,7 @@
 			overflow-x: auto;
 		}
 		.remap-keyboard {
-			width: 680px;
+			width: 560px;
 		}
 	}
 </style>
