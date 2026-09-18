@@ -101,8 +101,8 @@
 
 </script>
 
-<div class="mb-4">
-	<div class="mb-2 flex items-center justify-between">
+<div class="key-binding-root">
+	<div class="key-binding-header flex items-center justify-between">
 		<h3 class="text-xl font-bold">{tr('キー割り当て', 'Key Bindings')}</h3>
 		<AlertDialog.Root bind:open={resetOpen}>
 			<AlertDialog.Trigger>
@@ -127,8 +127,8 @@
 
 	{#if Object.values(ControllerType).includes(config.controller_type)}
 		{#if config.version >= 28}
-			<div class="mb-5">
-				<div class="mb-2">
+			<div class="remap-section">
+				<div class="remap-heading">
 					<div>
 						<h3 class="text-xl font-bold">{tr('ボタン配置入れ替え', 'Button Layout Remapping')}</h3>
 						<p class="text-sm text-muted-foreground">
@@ -225,22 +225,41 @@
 </div>
 
 <style>
+	.key-binding-root {
+		margin: 0;
+	}
+	.key-binding-header {
+		margin-bottom: 4px;
+	}
+	.remap-section {
+		margin-bottom: 10px;
+	}
+	.remap-heading {
+		margin-bottom: 5px;
+	}
+	.remap-heading h3 {
+		margin-top: 0 !important;
+		margin-bottom: 4px !important;
+	}
+	.remap-heading p {
+		line-height: 1.35;
+	}
 	.remap-stage {
 		background: #0f172a;
-		border-radius: 14px;
-		padding: 14px 16px 16px;
+		border-radius: 12px;
+		padding: 9px 12px 11px;
 		color: #e2e8f0;
 		min-width: 0;
 	}
 	.remap-keyboard {
 		position: relative;
-		width: min(100%, 600px);
+		width: min(100%, 520px);
 		aspect-ratio: 310 / 260;
 		margin: 0 auto;
 		padding: 1.5%;
 		background: linear-gradient(145deg, #e8edf2, #c4ced8);
 		border: 2px solid #718094;
-		border-radius: 14px;
+		border-radius: 12px;
 		box-shadow: inset 0 0 0 1px #f8fafc, 0 8px 20px rgba(2, 6, 23, 0.22);
 	}
 	.remap-key {
@@ -316,7 +335,7 @@
 			overflow-x: auto;
 		}
 		.remap-keyboard {
-			width: 560px;
+			width: 500px;
 		}
 	}
 </style>

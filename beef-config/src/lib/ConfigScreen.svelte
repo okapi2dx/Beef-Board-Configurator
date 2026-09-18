@@ -2,7 +2,6 @@
 	import { onMount } from 'svelte';
 	import * as Tabs from '$lib/components/ui/tabs';
 
-	import * as Accordion from '$lib/components/ui/accordion/index.js';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label/index.js';
 	import * as Select from '$lib/components/ui/select';
@@ -259,68 +258,60 @@
 				{/if}
 
 				{#if config.version >= 16}
-					<Accordion.Root type="single">
-						<Accordion.Item value="item-1">
-							<Accordion.Trigger>{tr('詳細設定', 'Advanced')}</Accordion.Trigger>
-							<Accordion.Content>
-								<div class="mb-4">
-									<ToolTipLabel forId="led-refresh" label={tr('RGB LED更新頻度', 'RGB LED Refresh Rate')}>
-										<p>
-											{tr('RGB LEDを更新する頻度です。値を上げると滑らかになりますが、処理負荷が増えます。', 'Controls how often RGB LEDs update. Higher values make animation smoother but use more processing time.')}
-										</p>
-									</ToolTipLabel>
-									<SliderInput bind:value={config.led_refresh} min={1} max={60} id="led-refresh" />
-								</div>
+					<Separator class="mb-4" />
+					<div class="mb-4">
+						<ToolTipLabel forId="led-refresh" label={tr('RGB LED更新頻度', 'RGB LED Refresh Rate')}>
+							<p>
+								{tr('RGB LEDを更新する頻度です。値を上げると滑らかになりますが、処理負荷が増えます。', 'Controls how often RGB LEDs update. Higher values make animation smoother but use more processing time.')}
+							</p>
+						</ToolTipLabel>
+						<SliderInput bind:value={config.led_refresh} min={1} max={60} id="led-refresh" />
+					</div>
 
-								<div class="mb-4">
-									<ToolTipLabel
-										forId="rainbow-spin-speed"
-										label={tr('レインボー効果の回転速度', 'Rainbow Effect Spin Speed')}
-									>
-										<p>
-											{tr('レインボー系の回転速度と反応速度を設定します。', 'Controls the speed and responsiveness of rainbow effects.')}
-										</p>
-									</ToolTipLabel>
-									<SliderInput
-										bind:value={config.rainbow_spin_speed}
-										min={1}
-										max={5}
-										id="rainbow-spin-speed"
-									/>
-								</div>
+					<div class="mb-4">
+						<ToolTipLabel
+							forId="rainbow-spin-speed"
+							label={tr('レインボー効果の回転速度', 'Rainbow Effect Spin Speed')}
+						>
+							<p>
+								{tr('レインボー系の回転速度と反応速度を設定します。', 'Controls the speed and responsiveness of rainbow effects.')}
+							</p>
+						</ToolTipLabel>
+						<SliderInput
+							bind:value={config.rainbow_spin_speed}
+							min={1}
+							max={5}
+							id="rainbow-spin-speed"
+						/>
+					</div>
 
-								<div class="mb-4">
-									<ToolTipLabel forId="tt-leds" label={tr('ターンテーブルLED数', 'Turntable LEDs')}>
-										<p>
-											{tr('ターンテーブルで点灯するLED数です。値を上げると消費電力と処理負荷が増えます。', 'Controls the number of lit turntable LEDs. Higher values use more power and may affect performance.')}
-										</p>
-										<br />
-										<p>{tr('反映には基板の再起動が必要です。', 'Restart the board to apply this setting.')}</p>
-									</ToolTipLabel>
-									<Input
-										class="w-1/5"
-										id="tt-leds"
-										min={1}
-										max={255}
-										type="number"
-										bind:value={config.tt_leds}
-									/>
-								</div>
-							</Accordion.Content>
-						</Accordion.Item>
-					</Accordion.Root>
+					<div class="mb-4">
+						<ToolTipLabel forId="tt-leds" label={tr('ターンテーブルLED数', 'Turntable LEDs')}>
+							<p>
+								{tr('ターンテーブルで点灯するLED数です。値を上げると消費電力と処理負荷が増えます。', 'Controls the number of lit turntable LEDs. Higher values use more power and may affect performance.')}
+							</p>
+							<br />
+							<p>{tr('反映には基板の再起動が必要です。', 'Restart the board to apply this setting.')}</p>
+						</ToolTipLabel>
+						<Input
+							class="w-1/5"
+							id="tt-leds"
+							min={1}
+							max={255}
+							type="number"
+							bind:value={config.tt_leds}
+						/>
+					</div>
 				{/if}
 			{/if}
 		</div>
 	{/if}
 </Tabs.Content>
-  <Tabs.Content value="keys" class="settings-card">
+  <Tabs.Content value="keys" class="settings-card keys-card">
 	{#if config.version >= 13}
-		<Separator class="mb-4" />
 		<KeyBinding bind:config />
 	{/if}
-
-	<Separator class="mb-4" /></Tabs.Content>
+</Tabs.Content>
   <Tabs.Content value="monitor" class="settings-card"><ControllerMonitor {config} active={active && settingsTab === 'monitor'} /></Tabs.Content>
 </Tabs.Root>
 
@@ -331,5 +322,6 @@
   :global(.settings-card .mb-4) { margin-bottom: 0.75rem; }
   :global(.settings-card h2), :global(.settings-card h3) { font-size: 1.125rem; margin-top: 0.75rem; margin-bottom: 0.75rem; }
   :global(.settings-card label) { line-height: 1.5; }
+  :global(.keys-card) { padding-top: 0.75rem; padding-bottom: 0.9rem; }
 </style>
 

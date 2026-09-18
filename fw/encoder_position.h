@@ -23,5 +23,5 @@ public:
   uint8_t get() const { return static_cast<uint8_t>(position / 10); }
 
 private:
-  uint16_t position = 0;
+  uint16_t position = 1270;
 };

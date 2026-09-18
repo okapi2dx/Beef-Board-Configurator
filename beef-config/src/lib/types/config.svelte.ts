@@ -80,7 +80,7 @@ export class Config {
   tt_rainbow_spin_hsv = $state(new Hsv(0, 0, 0));
   tt_react_hsv = $state(new Hsv(0, 0, 0));
   tt_breathing_hsv = $state(new Hsv(0, 0, 0));
-  tt_ratio = $state(0);
+  tt_ratio = $state(10);
   controller_type = $state(ControllerType.Default);
   iidx_input_mode = $state(InputMode.Joystick);
   sdvx_input_mode = $state(InputMode.Joystick);
@@ -91,7 +91,7 @@ export class Config {
   iidx_effectors_debounce = $state(0);
   sdvx_buttons_debounce = $state(0);
   led_refresh = $state(0);
-  rainbow_spin_speed = $state(3);
+  rainbow_spin_speed = $state(1);
   tt_leds = $state(0);
   bar_static_hsv = $state(new Hsv(0, 255, 255));
   link_bar_effect = $state(false);

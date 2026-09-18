@@ -169,7 +169,7 @@ void config_update(config* self) {
       self->tt_breathing_hsv = DEFAULT_COLOUR;
       self->version++;
     case 7:
-      self->tt_ratio = 2;
+      self->tt_ratio = 10;
       self->version++;
     case 8:
       self->controller_type = ControllerType::Default;
@@ -182,7 +182,7 @@ void config_update(config* self) {
       // Web config support
       self->version++;
     case 11:
-      self->tt_sustain_ms = 133;
+      self->tt_sustain_ms = 0;
       self->version++;
     case 12:
       // Key mapping support
@@ -202,7 +202,7 @@ void config_update(config* self) {
       self->version++;
     case 15:
       self->led_refresh = 60;
-      self->rainbow_spin_speed = 3;
+      self->rainbow_spin_speed = 1;
       self->tt_leds = 24;
       self->version++;
     case 16:
