@@ -138,6 +138,15 @@
 						<span class="nav-subtitle">{tr('更新・書き込み', 'Update & flash')}</span>
 					</button>
 
+				</nav>
+
+				{#if appState.device && firmwareInfo}
+					<div class="sidebar-footer">
+						<span>{tr('現在のファームウェア', 'Firmware')}</span>
+						<strong>{firmwareInfo.version ? `V${firmwareInfo.version}` : '-'}</strong>
+					</div>
+				{/if}
+				<div class="sidebar-reset">
 					<AlertDialog.Root>
 						<AlertDialog.Trigger>
 							{#snippet child({ props })}
@@ -163,6 +172,7 @@
 									onclick={async () => {
 										await sendCommand(Command.ResetConfig);
 										await waitForReconnection();
+										await window.beefNative?.closeWindow();
 									}}
 								>
 									{tr('続行', 'Continue')}
@@ -171,14 +181,7 @@
 							</AlertDialog.Footer>
 						</AlertDialog.Content>
 					</AlertDialog.Root>
-				</nav>
-
-				{#if appState.device && firmwareInfo}
-					<div class="sidebar-footer">
-						<span>{tr('現在のファームウェア', 'Firmware')}</span>
-						<strong>{firmwareInfo.version ? `V${firmwareInfo.version}` : '-'}</strong>
-					</div>
-				{/if}
+				</div>
 			</aside>
 
 			<section class="app-content">
@@ -300,8 +303,14 @@
 		box-shadow: inset 3px 0 0 currentColor;
 	}
 	.sidebar-item-danger {
-		margin-top: 4px;
 		color: var(--destructive);
+		border-color: var(--destructive);
+		background: color-mix(in srgb, var(--destructive) 4%, transparent);
+	}
+	.sidebar-reset {
+		margin-top: 16px;
+		padding-top: 14px;
+		border-top: 1px solid var(--border);
 	}
 	.sidebar-item-danger:not(:disabled):hover {
 		background: color-mix(in srgb, var(--destructive) 10%, transparent);

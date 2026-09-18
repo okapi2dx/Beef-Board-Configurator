@@ -38,6 +38,11 @@ async function start() {
     authorize(event);
     return app.getVersion();
   });
+  ipcMain.handle('beef:close-window', async event => {
+    authorize(event);
+    if (window && !window.isDestroyed()) window.close();
+    return true;
+  });
   ipcMain.handle('beef:check-update', async event => {
     authorize(event);
     try {
