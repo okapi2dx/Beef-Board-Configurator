@@ -1,5 +1,8 @@
 # Beef Board Configurator
 
+> **このプロジェクトは [HWXLR8/beef-board](https://github.com/HWXLR8/beef-board) をベースに開発しているフォーク／派生プロジェクトです。**  
+> オリジナルのBEEF BOARDを基盤として、Windowsデスクトップ版Configuratorや各種設定・診断機能、ファームウェアの拡張を行っています。
+
 **Beef Board Configurator** は、BEEF BOARDを使用した音楽ゲーム向けコントローラーの設定・調整・診断・ファームウェア更新を、Windows上でまとめて行うためのデスクトップアプリケーションです。
 
 従来のブラウザベースの設定画面をWindowsデスクトップアプリとして統合し、BEEF BOARDをUSB接続するだけで各種設定を変更できます。
