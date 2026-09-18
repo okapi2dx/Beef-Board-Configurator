@@ -19,6 +19,14 @@ else {
 }
 app.on('window-all-closed', () => app.quit());
 
+function formatDisplayVersion(version) {
+  const match = /^(\d+)\.(\d+)(?:\.(\d+))?$/.exec(String(version).trim());
+  if (!match) return String(version);
+  const [, major, minor, patch = '0'] = match;
+  const base = `V${major}.${minor.padStart(2, '0')}`;
+  return Number(patch) === 0 ? base : `${base}.${Number(patch)}`;
+}
+
 async function start() {
   const flasher = createFlasher(app.isPackaged ? path.join(process.resourcesPath, 'avrdude') : path.join(__dirname, '../beef-tool/avrdude'));
   const authorize = event => {
