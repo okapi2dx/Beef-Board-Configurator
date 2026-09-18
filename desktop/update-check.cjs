@@ -1,6 +1,4 @@
-const RELEASE_API = 'https://api.github.com/repos/okapi2dx/Beef-Board-desktop/releases/latest';
-const CURRENT_RELEASE = 'V1.00.1';
-
+const RELEASE_API = 'https://api.github.com/repos/okapi2dx/Beef-Board-Configurator/releases/latest';
 function parseVersion(tag) {
   const match = /^v?(\d+(?:\.\d+)*)$/i.exec(String(tag || '').trim());
   return match ? match[1].split('.').map(Number) : null;
@@ -18,7 +16,8 @@ function compareVersions(left, right) {
   return 0;
 }
 
-async function checkForUpdate(fetchImpl) {
+async function checkForUpdate(fetchImpl, currentVersion) {
+  if (!parseVersion(currentVersion)) throw new Error('Current app version is invalid');
   const response = await fetchImpl(RELEASE_API, {
     headers: {
       Accept: 'application/vnd.github+json',
@@ -36,11 +35,11 @@ async function checkForUpdate(fetchImpl) {
   }
 
   return {
-    currentVersion: CURRENT_RELEASE,
+    currentVersion,
     latestVersion,
     releaseUrl,
-    updateAvailable: compareVersions(latestVersion, CURRENT_RELEASE) > 0
+    updateAvailable: compareVersions(latestVersion, currentVersion) > 0
   };
 }
 
-module.exports = { CURRENT_RELEASE, RELEASE_API, parseVersion, compareVersions, checkForUpdate };
+module.exports = { RELEASE_API, parseVersion, compareVersions, checkForUpdate };

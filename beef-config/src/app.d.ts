@@ -5,6 +5,7 @@ declare global {
 		beefNative?: {
 			selectFirmware(): Promise<{ name: string; bytes: number; commitHash: string | null; version: string | null } | null>;
 			flashFirmware(): Promise<{ success: boolean; exitCode: number | null }>;
+			getVersion(): Promise<string>;
 			checkForUpdates(): Promise<{
 				currentVersion: string;
 				latestVersion: string;

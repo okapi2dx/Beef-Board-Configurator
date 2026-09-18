@@ -1,6 +1,6 @@
 {
   "name": "beef-board-desktop",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Windows desktop configurator for Beef Board",
   "author": "Beef Board contributors",
   "license": "GPL-3.0-only",
@@ -8,8 +8,11 @@
   "scripts": {
     "build:ui": "node ../beef-config/build-desktop.mjs",
     "start": "electron .",
-    "test": "node --test policy.test.cjs firmware.test.cjs native-flash.test.cjs",
-    "dist": "npm run build:ui && electron-builder --win portable --x64"
+    "test": "node --test policy.test.cjs firmware.test.cjs native-flash.test.cjs update-check.test.cjs",
+    "dist": "npm run build:ui && electron-builder --win portable --x64",
+    "version:sync": "node ../scripts/sync-version.mjs",
+    "version:check": "node ../scripts/sync-version.mjs --check",
+    "predist": "npm run version:check"
   },
   "build": {
     "appId": "io.github.hwxlr8.beefboard.desktop",
@@ -40,7 +43,7 @@
       "signAndEditExecutable": false
     },
     "portable": {
-      "artifactName": "Beef Board Configurator V1.00.1.exe"
+      "artifactName": "Beef Board Configurator V1.01.0.exe"
     },
     "extraResources": [
       {

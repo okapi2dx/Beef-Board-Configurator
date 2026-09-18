@@ -25,6 +25,7 @@
 	let settingsSection = $state('input');
 	let loading = $state(true);
 	let nativeFlash = $state(false);
+	let appVersion = $state('');
 	let updateInfo = $state<Awaited<ReturnType<NonNullable<Window['beefNative']>['checkForUpdates']>>>(null);
 	let firmwareInfo = $state<FirmwareInfo | null>(null);
 
@@ -33,7 +34,10 @@
 		nativeFlash = !!window.beefNative;
 		checkBrowserSupport();
 		loading = false;
-		if (window.beefNative) updateInfo = await window.beefNative.checkForUpdates();
+		if (window.beefNative) {
+			appVersion = await window.beefNative.getVersion();
+			updateInfo = await window.beefNative.checkForUpdates();
+		}
 	});
 
 	function checkBrowserSupport(): void {
@@ -55,10 +59,10 @@
 </script>
 
 <main class="app-shell">
-	<title>Beef Board Configurator v1.00.1</title>
+	<title>Beef Board Configurator{appVersion ? ` v${appVersion}` : ''}</title>
 	<div class="app-header">
 		<h1 class="flex items-baseline gap-2 text-2xl font-bold">
-			<span>Beef Board Configurator</span><span class="text-base font-semibold text-muted-foreground">v1.00.1</span>
+			<span>Beef Board Configurator</span>{#if appVersion}<span class="text-base font-semibold text-muted-foreground">v{appVersion}</span>{/if}
 		</h1>
 		<div class="flex items-center gap-3">
 			{#if appState.device && firmwareInfo}

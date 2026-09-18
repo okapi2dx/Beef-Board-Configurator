@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  app:
+    name: Configurator and desktop tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            beef-config/package-lock.json
+            desktop/package-lock.json
+      - name: Check synchronized version
+        run: node scripts/sync-version.mjs --check
+      - name: Install configurator dependencies
+        working-directory: beef-config
+        run: npm ci
+      - name: Svelte check
+        working-directory: beef-config
+        run: npm run check
+      - name: Configurator tests
+        working-directory: beef-config
+        run: |
+          npm run test:bar-color
+          npm run test:key-mapping
+          node --conditions=browser led-emulator.test.mjs
+      - name: Build configurator
+        working-directory: beef-config
+        run: npm run build
+      - name: Install desktop dependencies
+        working-directory: desktop
+        run: npm ci
+      - name: Desktop tests
+        working-directory: desktop
+        run: npm test
+
+  firmware-host-tests:
+    name: Firmware host tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile and run host-side tests
+        working-directory: fw
+        run: |
+          set -e
+          for test in \
+            tests/debounce_test.cpp \
+            tests/encoder_position_test.cpp \
+            tests/analog_turntable_test.cpp \
+            tests/button_led_envelope_test.cpp \
+            tests/smooth_rainbow_test.cpp \
+            tests/turntable_delay_test.cpp \
+            tests/turntable_gate_test.cpp
+          do
+            exe="/tmp/$(basename "$test" .cpp)"
+            g++ -std=c++17 -O2 "$test" -o "$exe"
+            "$exe"
+          done
+
+  firmware-build:
+    name: AVR firmware build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install AVR toolchain
+        run: sudo apt-get update && sudo apt-get install -y gcc-avr avr-libc make
+      - name: Build firmware
+        working-directory: fw
+        run: make

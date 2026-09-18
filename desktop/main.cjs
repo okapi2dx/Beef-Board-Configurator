@@ -34,10 +34,14 @@ async function start() {
     authorize(event);
     return flasher.flash(text => { if (!window.webContents.isDestroyed()) window.webContents.send('beef:flash-log', text); });
   });
+  ipcMain.handle('beef:get-version', async event => {
+    authorize(event);
+    return app.getVersion();
+  });
   ipcMain.handle('beef:check-update', async event => {
     authorize(event);
     try {
-      return await checkForUpdate((url, options) => net.fetch(url, options));
+      return await checkForUpdate((url, options) => net.fetch(url, options), app.getVersion());
     } catch (error) {
       console.warn('Update check failed:', error);
       return null;
@@ -45,7 +49,7 @@ async function start() {
   });
   ipcMain.handle('beef:open-update', async (event, url) => {
     authorize(event);
-    if (typeof url !== 'string' || !url.startsWith('https://github.com/okapi2dx/Beef-Board-desktop/')) throw new Error('Invalid update URL');
+    if (typeof url !== 'string' || !url.startsWith('https://github.com/okapi2dx/Beef-Board-Configurator/')) throw new Error('Invalid update URL');
     await shell.openExternal(url);
   });
   const ses = session.fromPartition('persist:beef-board');
@@ -88,7 +92,7 @@ async function start() {
     });
   }
   window = new BrowserWindow({ width: 980, height: 740, minWidth: 720, minHeight: 560,
-    title: 'Beef Board Configurator v1.00.1', autoHideMenuBar: true,
+    title: `Beef Board Configurator v${app.getVersion()}`, autoHideMenuBar: true,
     webPreferences: { session: ses, preload: path.join(__dirname, 'preload.cjs'), nodeIntegration: false, contextIsolation: true, sandbox: true } });
   window.on('close', event => { if (flasher.busy) event.preventDefault(); });
   app.on('before-quit', event => { if (flasher.busy) event.preventDefault(); });
