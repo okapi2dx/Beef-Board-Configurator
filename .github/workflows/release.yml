@@ -6,6 +6,7 @@ on:
     paths:
       - VERSION
       - .github/workflows/release.yml
+      - scripts/sync-version.mjs
   workflow_dispatch:
 
 permissions:

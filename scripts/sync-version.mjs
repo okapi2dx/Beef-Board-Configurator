@@ -23,13 +23,15 @@ const fwVersionText =
   `FW_VERSION_MINOR ?= ${minor}\n` +
   `FW_VERSION_PATCH ?= ${patch}\n`;
 
+const normalizeEol = (text) => text.replace(/\r\n/g, '\n');
+
 if (process.argv.includes('--check')) {
   let ok = true;
-  if (fs.readFileSync(packagePath, 'utf8') !== packageText) {
+  if (normalizeEol(fs.readFileSync(packagePath, 'utf8')) !== packageText) {
     console.error('desktop/package.json is not synchronized with VERSION');
     ok = false;
   }
-  if (!fs.existsSync(fwVersionPath) || fs.readFileSync(fwVersionPath, 'utf8') !== fwVersionText) {
+  if (!fs.existsSync(fwVersionPath) || normalizeEol(fs.readFileSync(fwVersionPath, 'utf8')) !== fwVersionText) {
     console.error('fw/version.mk is not synchronized with VERSION');
     ok = false;
   }
