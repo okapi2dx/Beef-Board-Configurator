@@ -17,10 +17,17 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-      - name: Install AVR toolchain
+      - name: Install AVR-GCC 14.1.0
+        shell: bash
         run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc-avr avr-libc make g++
+          curl -L --retry 3 -o /tmp/avr-gcc.tar.bz2 https://github.com/ZakKemble/avr-gcc-build/releases/download/v14.1.0-1/avr-gcc-14.1.0-x64-linux.tar.bz2
+          mkdir -p "$HOME/avr-toolchain"
+          tar -xjf /tmp/avr-gcc.tar.bz2 -C "$HOME/avr-toolchain"
+          AVR_GCC="$(find "$HOME/avr-toolchain" -type f -name avr-gcc -print -quit)"
+          test -n "$AVR_GCC"
+          AVR_BIN="$(dirname "$AVR_GCC")"
+          echo "$AVR_BIN" >> "$GITHUB_PATH"
+          "$AVR_GCC" --version
       - name: Test encoder neutral
         run: |
           g++ -std=c++17 -Wall -Wextra -pedantic fw/tests/encoder_position_test.cpp -o /tmp/encoder_position_test
