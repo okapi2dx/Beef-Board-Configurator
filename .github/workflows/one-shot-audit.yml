@@ -1,0 +1,189 @@
+name: One-shot Full Audit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/one-shot-audit.yml
+
+permissions:
+  contents: read
+
+jobs:
+  hygiene:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Repository hygiene scan
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os, re, subprocess, json
+          files = subprocess.check_output(["git","ls-files"], text=True).splitlines()
+          print("TRACKED_FILES", len(files))
+          print("\nNON_ASCII_FILENAMES")
+          for p in files:
+              if any(ord(c) > 127 for c in p):
+                  print(p)
+          print("\nGENERATED_OR_BINARY_TRACKED")
+          for p in files:
+              if re.search(r'\.(exe|pdb|elf|o|map|zip|hex)$', p, re.I):
+                  print(p)
+          patterns = {
+              "old-version": r'(?i)(?:v?1\.1\.0|V1\.01\.0|firmware\s*1\.10\.[01]|1\.10\.[01]|controller-monitor-1\.10)',
+              "todo": r'\b(?:TODO|FIXME|HACK|XXX)\b',
+              "debug-log": r'console\.(?:log|debug)\s*\(',
+              "sdvx": r'\bSDVX\b|sdvx_',
+          }
+          print("\nPATTERN_SCAN")
+          text_ext = {'.md','.txt','.js','.mjs','.cjs','.ts','.svelte','.css','.json','.c','.cpp','.h','.mk','.py','.bat'}
+          for p in files:
+              if p.startswith(("fw/LUFA/","fw/FastLED/")): continue
+              if os.path.splitext(p)[1].lower() not in text_ext and p not in ("VERSION",): continue
+              try:
+                  s=open(p,'r',encoding='utf-8').read()
+              except Exception:
+                  continue
+              for name,pat in patterns.items():
+                  hits=list(re.finditer(pat,s))
+                  if hits:
+                      vals=[]
+                      for h in hits[:8]:
+                          line=s.count("\n",0,h.start())+1
+                          vals.append(f"{line}:{h.group(0)}")
+                      print(name,p," | ".join(vals))
+          print("\nUNREFERENCED_TOP_LEVEL_SVELTE_COMPONENTS")
+          src_files=[]
+          for root,_,names in os.walk("beef-config/src"):
+              for n in names:
+                  if n.endswith(('.svelte','.ts','.js')):
+                      path=os.path.join(root,n)
+                      try: src_files.append((path,open(path,encoding='utf-8').read()))
+                      except: pass
+          for p,s in src_files:
+              if not (p.startswith("beef-config/src/lib/") and p.count("/") == 4 and p.endswith(".svelte")):
+                  continue
+              base=os.path.basename(p)
+              refs=sum(base in body for q,body in src_files if q!=p)
+              if refs==0:
+                  print(p)
+          pkg=json.load(open("beef-config/package.json"))
+          scripts="\n".join(pkg.get("scripts",{}).values())
+          print("\nUNWIRED_BEEF_CONFIG_TESTS")
+          for p in files:
+              if p.startswith("beef-config/") and p.endswith((".test.mjs",".test.js",".test.cjs")):
+                  if os.path.basename(p) not in scripts:
+                      print(p)
+          dpkg=json.load(open("desktop/package.json"))
+          dscripts="\n".join(dpkg.get("scripts",{}).values())
+          print("\nUNWIRED_DESKTOP_TEST_OR_SMOKE")
+          for p in files:
+              if p.startswith("desktop/") and (p.endswith(".test.cjs") or p.endswith("-smoke.cjs") or p.endswith("/smoke.cjs")):
+                  if os.path.basename(p) not in dscripts:
+                      print(p)
+          PY
+
+  app:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            beef-config/package-lock.json
+            desktop/package-lock.json
+      - name: Version consistency
+        run: node scripts/sync-version.mjs --check
+      - name: Install configurator
+        working-directory: beef-config
+        run: npm ci
+      - name: Svelte check
+        working-directory: beef-config
+        run: npm run check
+      - name: Prettier check
+        working-directory: beef-config
+        continue-on-error: true
+        run: npx prettier --check .
+      - name: ESLint
+        working-directory: beef-config
+        continue-on-error: true
+        run: npx eslint .
+      - name: Configurator tests
+        working-directory: beef-config
+        shell: bash
+        run: |
+          node --conditions=browser bar-color.test.mjs
+          node --conditions=browser key-mapping.test.mjs
+          node --conditions=browser led-emulator.test.mjs
+      - name: Configurator build
+        working-directory: beef-config
+        run: npm run build
+      - name: Install desktop
+        working-directory: desktop
+        run: npm ci
+      - name: Desktop unit tests
+        working-directory: desktop
+        run: npm test
+      - name: Syntax check desktop scripts
+        working-directory: desktop
+        shell: bash
+        run: |
+          for f in *.cjs; do node --check "$f"; done
+
+  firmware:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Host firmware tests
+        shell: bash
+        run: |
+          set -e
+          for src in fw/tests/*_test.cpp; do
+            exe="/tmp/$(basename "$src" .cpp)"
+            echo "=== $src ==="
+            g++ -std=c++17 -Wall -Wextra -Werror -pedantic "$src" -o "$exe"
+            "$exe"
+          done
+      - name: Install AVR-GCC 14.1.0
+        shell: bash
+        run: |
+          curl -L --retry 3 -o /tmp/avr-gcc.tar.bz2 https://github.com/ZakKemble/avr-gcc-build/releases/download/v14.1.0-1/avr-gcc-14.1.0-x64-linux.tar.bz2
+          mkdir -p "$HOME/avr-toolchain"
+          tar -xjf /tmp/avr-gcc.tar.bz2 -C "$HOME/avr-toolchain"
+          AVR_GCC="$(find "$HOME/avr-toolchain" -type f -name avr-gcc -print -quit)"
+          test -n "$AVR_GCC"
+          echo "$(dirname "$AVR_GCC")" >> "$GITHUB_PATH"
+      - name: AVR firmware build
+        working-directory: fw
+        run: make clean && make
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            beef-config/package-lock.json
+            desktop/package-lock.json
+      - name: Install configurator
+        working-directory: beef-config
+        run: npm ci
+      - name: Install desktop
+        working-directory: desktop
+        run: npm ci
+      - name: Build Windows portable
+        working-directory: desktop
+        run: npm run dist
