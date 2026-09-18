@@ -72,18 +72,13 @@
 	<div class="app-header">
 		<div class="header-title-row">
 			<h1 class="flex items-baseline gap-2 text-2xl font-bold">
-				<span>Beef Board Configurator</span>
+				<span>Beef Board Configurator</span>{#if appVersion}<span class="text-base font-semibold text-muted-foreground">v{appVersion}</span>{/if}
 			</h1>
 			{#if !appState.device}
 				<Button onclick={connectDevice} disabled={appState.disableConfigTab}>接続 / Connect Device</Button>
 			{/if}
 		</div>
 		<div class="flex items-center gap-3">
-			{#if appState.device && firmwareInfo}
-				<div class="text-sm text-muted-foreground">
-					{tr('現在のファームウェア', 'Current firmware')}: {firmwareInfo.version ? `V${firmwareInfo.version}` : tr('バージョン情報なし', 'version unavailable')}
-				</div>
-			{/if}
 			<LanguageSelect />
 			<LightDarkModeToggle />
 		</div>
