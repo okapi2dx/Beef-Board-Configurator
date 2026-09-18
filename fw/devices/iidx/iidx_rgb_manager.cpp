@@ -357,9 +357,12 @@ namespace IIDX {
     }
 
     void init(const config &cfg) {
-      Turntable::spin_pattern.init(SPIN_TIMER * RgbHelper::tt_anim_normalise,
-                                   FAST_SPIN_TIMER * RgbHelper::tt_anim_normalise,
-                                   RgbHelper::num_tt_leds / 2);
+      const uint16_t spin_duration = SPIN_TIMER * RgbHelper::tt_anim_normalise;
+      const uint16_t fast_spin_duration = FAST_SPIN_TIMER * RgbHelper::tt_anim_normalise;
+      const uint8_t spin_limit = RgbHelper::num_tt_leds > 1 ? RgbHelper::num_tt_leds / 2 : 1;
+      Turntable::spin_pattern.init(spin_duration > 255 ? 255 : spin_duration,
+                                   fast_spin_duration > 255 ? 255 : fast_spin_duration,
+                                   spin_limit);
     }
 
     void update(const int8_t tt_report,

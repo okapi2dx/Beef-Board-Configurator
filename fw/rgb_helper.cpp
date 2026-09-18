@@ -27,6 +27,7 @@ namespace RgbHelper {
   void init(const config &cfg) {
     timer_init(&combo_timer);
     tt_anim_normalise = 24 / cfg.tt_leds;
+    if (tt_anim_normalise == 0) tt_anim_normalise = 1;
     num_tt_leds = cfg.tt_leds;
     tt_leds = static_cast<CRGB*>(calloc(num_tt_leds, sizeof(CRGB)));
     update(cfg);

@@ -12,8 +12,11 @@
 #define CONFIG_TT_SHIFT_SAT_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_shift_hsv.s))
 #define CONFIG_TT_SHIFT_VAL_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_shift_hsv.v))
 #define CONFIG_TT_RAINBOW_STATIC_SAT_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_rainbow_static_hsv.s))
+#define CONFIG_TT_RAINBOW_STATIC_VAL_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_rainbow_static_hsv.v))
 #define CONFIG_TT_RAINBOW_REACT_SAT_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_rainbow_react_hsv.s))
+#define CONFIG_TT_RAINBOW_REACT_VAL_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_rainbow_react_hsv.v))
 #define CONFIG_TT_RAINBOW_SPIN_SAT_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_rainbow_spin_hsv.s))
+#define CONFIG_TT_RAINBOW_SPIN_VAL_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_rainbow_spin_hsv.v))
 #define CONFIG_TT_REACT_HUE_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_react_hsv.h))
 #define CONFIG_TT_REACT_SAT_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_react_hsv.s))
 #define CONFIG_TT_BREATHING_HUE_ADDR (CONFIG_BASE_ADDR + offsetof(config, tt_breathing_hsv.h))
@@ -457,15 +460,15 @@ callback tt_hsv_set_val(config* self) {
       v = &self->tt_shift_hsv;
       break;
     case TurntableMode::RainbowStatic:
-      addr = CONFIG_TT_RAINBOW_STATIC_SAT_ADDR;
+      addr = CONFIG_TT_RAINBOW_STATIC_VAL_ADDR;
       v = &self->tt_rainbow_static_hsv;
       break;
     case TurntableMode::RainbowReact:
-      addr = CONFIG_TT_RAINBOW_REACT_SAT_ADDR;
+      addr = CONFIG_TT_RAINBOW_REACT_VAL_ADDR;
       v = &self->tt_rainbow_react_hsv;
       break;
     case TurntableMode::RainbowSpin:
-      addr = CONFIG_TT_RAINBOW_SPIN_SAT_ADDR;
+      addr = CONFIG_TT_RAINBOW_SPIN_VAL_ADDR;
       v = &self->tt_rainbow_spin_hsv;
       break;
     default:

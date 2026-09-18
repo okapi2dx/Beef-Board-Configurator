@@ -31,7 +31,7 @@
 		[225, 15]
 	];
 	function logicalButtonState(buttons: number): number {
-		if (config.version < 28) return buttons;
+		if (config.version < 28 || config.iidx_input_mode !== 'Joystick') return buttons;
 		let mapped = buttons & ~0x7ff;
 		for (let physical = 0; physical < 11; physical++) {
 			if (buttons & (1 << physical)) mapped |= 1 << config.button_mapping[physical];

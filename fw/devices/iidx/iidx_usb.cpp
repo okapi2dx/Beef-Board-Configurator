@@ -81,7 +81,7 @@ namespace IIDX {
         process_keyboard(keyboard_report,
                          current_config.iidx_keys.key_codes,
                          sizeof(current_config.iidx_keys.key_codes),
-                         remap_buttons(button_state, current_config.button_mapping));
+                         button_state);
 
         return false;
       }
