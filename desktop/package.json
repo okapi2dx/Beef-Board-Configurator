@@ -6,7 +6,7 @@
   "license": "GPL-3.0-only",
   "main": "main.cjs",
   "scripts": {
-    "build:ui": "node ../beef-config/build-desktop.mjs",
+    "build:ui": "npm --prefix ../beef-config run sync && node ../beef-config/build-desktop.mjs",
     "start": "electron .",
     "test": "node --test policy.test.cjs firmware.test.cjs native-flash.test.cjs update-check.test.cjs",
     "dist": "npm run build:ui && electron-builder --win portable --x64",
