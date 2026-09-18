@@ -19,14 +19,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Refresh lockfile and verify formatter
+      - name: Refresh lockfile and verify dependencies
         working-directory: beef-config
         shell: bash
         run: |
           npm install --package-lock-only
           npm ci
           npm run check
-          npm run lint
+          npx eslint .
           npm run test
           npm run build
           npm audit --json > /tmp/audit.json || true
