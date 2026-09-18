@@ -7,13 +7,13 @@
 		base: "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium outline-none transition-all focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
 		variants: {
 			variant: {
-				default: "bg-primary text-primary-foreground shadow-xs hover:bg-blue-600 data-[preserve-hover=true]:hover:bg-primary/90",
+				default: "bg-primary text-primary-foreground shadow-xs hover:ring-2 hover:ring-blue-400/35",
 				destructive:
-					"bg-destructive shadow-xs hover:bg-blue-600 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60 text-white",
+					"bg-destructive shadow-xs hover:ring-2 hover:ring-blue-400/35 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60 text-white",
 				outline:
-					"bg-background shadow-xs hover:bg-blue-600 hover:text-white hover:border-blue-500 dark:bg-input/30 dark:border-input dark:hover:bg-blue-600 border",
-				secondary: "bg-secondary text-secondary-foreground shadow-xs hover:bg-blue-600 hover:text-white",
-				ghost: "hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600",
+					"bg-background shadow-xs hover:bg-blue-500/10 hover:text-blue-600 hover:border-blue-400/70 dark:bg-input/30 dark:border-input dark:hover:bg-blue-500/15 dark:hover:text-blue-300 border",
+				secondary: "bg-secondary text-secondary-foreground shadow-xs hover:bg-blue-500/10 hover:text-blue-600 hover:ring-1 hover:ring-blue-400/35 dark:hover:text-blue-300",
+				ghost: "hover:bg-blue-500/10 hover:text-blue-600 dark:hover:bg-blue-500/15 dark:hover:text-blue-300",
 				link: "text-primary underline-offset-4 hover:text-blue-500 hover:underline",
 			},
 			size: {

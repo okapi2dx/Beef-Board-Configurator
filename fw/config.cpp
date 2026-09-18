@@ -169,7 +169,7 @@ void config_update(config* self) {
       self->tt_breathing_hsv = DEFAULT_COLOUR;
       self->version++;
     case 7:
-      self->tt_ratio = 10;
+      self->tt_ratio = 1;
       self->version++;
     case 8:
       self->controller_type = ControllerType::Default;

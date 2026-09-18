@@ -281,10 +281,10 @@
 	}
 	.remap-key:hover,
 	.remap-key:focus-within {
-		background: #2563eb;
-		border-color: #60a5fa;
-		color: #fff;
-		box-shadow: inset 0 -3px rgba(30, 64, 175, 0.75), 0 0 0 3px rgba(59, 130, 246, 0.2);
+		background: #dbeafe;
+		border-color: #93c5fd;
+		color: #1e3a8a;
+		box-shadow: inset 0 -3px #bfdbfe, 0 0 0 2px rgba(96, 165, 250, 0.16);
 		transform: translateY(-1px);
 	}
 	.remap-key.function-key {
@@ -296,8 +296,9 @@
 	}
 	.remap-key.black:hover,
 	.remap-key.black:focus-within {
-		background: #1d4ed8;
+		background: #273b5f;
 		border-color: #60a5fa;
+		box-shadow: inset 0 -3px #1e3a5f, 0 0 0 2px rgba(96, 165, 250, 0.16);
 	}
 	.remap-key strong {
 		font-size: 15px;
@@ -326,8 +327,8 @@
 	}
 	:global(.remap-select:hover),
 	:global(.remap-select:focus-visible) {
-		border-color: #60a5fa !important;
-		box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.22) !important;
+		border-color: #93c5fd !important;
+		box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.12) !important;
 	}
 	@media (max-width: 760px) {
 		.remap-stage {

@@ -75,7 +75,7 @@
 				<span>Beef Board Configurator</span>{#if appVersion}<span class="text-base font-semibold text-muted-foreground">v{appVersion}</span>{/if}
 			</h1>
 			{#if !appState.device}
-				<Button data-preserve-hover="true" onclick={connectDevice} disabled={appState.disableConfigTab}>接続 / Connect Device</Button>
+				<Button onclick={connectDevice} disabled={appState.disableConfigTab}>接続 / Connect Device</Button>
 			{/if}
 		</div>
 		<div class="flex items-center gap-3">
@@ -156,7 +156,7 @@
 							{#snippet child({ props })}
 								<button
 									{...props}
-									class="sidebar-item sidebar-item-danger"
+									class="sidebar-item sidebar-reset-button"
 									disabled={!appState.device || appState.disableConfigTab}
 								>
 									<span class="nav-title">{tr('設定を初期化', 'Reset Config')}</span>
@@ -317,13 +317,13 @@
 		transition: background 120ms ease, border-color 120ms ease, transform 120ms ease;
 	}
 	.sidebar-item:not(:disabled):hover {
-		background: color-mix(in srgb, #3b82f6 12%, transparent);
-		border-color: color-mix(in srgb, #3b82f6 42%, transparent);
+		background: color-mix(in srgb, #3b82f6 7%, transparent);
+		border-color: color-mix(in srgb, #3b82f6 26%, transparent);
 		color: #2563eb;
 		transform: translateX(1px);
 	}
 	:global(.dark) .sidebar-item:not(:disabled):hover {
-		background: color-mix(in srgb, #3b82f6 18%, transparent);
+		background: color-mix(in srgb, #3b82f6 10%, transparent);
 		color: #93c5fd;
 	}
 	.sidebar-item.active {
@@ -331,17 +331,25 @@
 		background: var(--muted);
 		box-shadow: inset 3px 0 0 currentColor;
 	}
-	.sidebar-item-danger {
-		margin-top: 4px;
-		color: var(--destructive);
-	}
 	.sidebar-reset {
 		margin-top: 16px;
 		padding-top: 0;
 	}
-	.sidebar-item-danger:not(:disabled):hover {
-		background: color-mix(in srgb, var(--destructive) 10%, transparent);
-		border-color: color-mix(in srgb, var(--destructive) 25%, transparent);
+	.sidebar-reset-button {
+		margin-top: 4px;
+		background: var(--primary);
+		color: var(--primary-foreground);
+		border-color: transparent;
+		box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+	}
+	.sidebar-reset-button .nav-subtitle {
+		color: color-mix(in srgb, var(--primary-foreground) 72%, transparent);
+	}
+	.sidebar-reset-button:not(:disabled):hover {
+		background: var(--primary);
+		color: var(--primary-foreground);
+		border-color: color-mix(in srgb, #60a5fa 55%, transparent);
+		box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.16);
 	}
 	.sidebar-item:disabled {
 		opacity: 0.42;
