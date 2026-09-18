@@ -13,7 +13,6 @@ declare global {
 				updateAvailable: boolean;
 			} | null>;
 			openUpdate(url: string): Promise<void>;
-			closeWindow(): Promise<boolean>;
 			onLog(callback: (text: string) => void): () => void;
 		};
 	}

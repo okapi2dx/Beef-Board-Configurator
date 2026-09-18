@@ -29,6 +29,7 @@
 	let appVersion = $state('');
 	let updateInfo = $state<Awaited<ReturnType<NonNullable<Window['beefNative']>['checkForUpdates']>>>(null);
 	let firmwareInfo = $state<FirmwareInfo | null>(null);
+	let resetDialogOpen = $state(false);
 
 	onMount(async () => {
 		initializeLocale();
@@ -147,7 +148,7 @@
 					</div>
 				{/if}
 				<div class="sidebar-reset">
-					<AlertDialog.Root>
+					<AlertDialog.Root bind:open={resetDialogOpen}>
 						<AlertDialog.Trigger>
 							{#snippet child({ props })}
 								<button
@@ -168,15 +169,15 @@
 								</AlertDialog.Description>
 							</AlertDialog.Header>
 							<AlertDialog.Footer>
-								<AlertDialog.Action
+								<Button
 									onclick={async () => {
 										await sendCommand(Command.ResetConfig);
 										await waitForReconnection();
-										await window.beefNative?.closeWindow();
+										resetDialogOpen = false;
 									}}
 								>
 									{tr('続行', 'Continue')}
-								</AlertDialog.Action>
+								</Button>
 								<AlertDialog.Cancel>{tr('キャンセル', 'Cancel')}</AlertDialog.Cancel>
 							</AlertDialog.Footer>
 						</AlertDialog.Content>
@@ -303,14 +304,11 @@
 		box-shadow: inset 3px 0 0 currentColor;
 	}
 	.sidebar-item-danger {
+		margin-top: 4px;
 		color: var(--destructive);
-		border-color: var(--destructive);
-		background: color-mix(in srgb, var(--destructive) 4%, transparent);
 	}
 	.sidebar-reset {
 		margin-top: 16px;
-		padding-top: 14px;
-		border-top: 1px solid var(--border);
 	}
 	.sidebar-item-danger:not(:disabled):hover {
 		background: color-mix(in srgb, var(--destructive) 10%, transparent);

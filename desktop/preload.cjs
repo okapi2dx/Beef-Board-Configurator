@@ -5,7 +5,6 @@ contextBridge.exposeInMainWorld('beefNative', {
   getVersion: () => ipcRenderer.invoke('beef:get-version'),
   checkForUpdates: () => ipcRenderer.invoke('beef:check-update'),
   openUpdate: url => ipcRenderer.invoke('beef:open-update', url),
-  closeWindow: () => ipcRenderer.invoke('beef:close-window'),
   onLog: callback => {
     const listener = (_event, text) => callback(text);
     ipcRenderer.on('beef:flash-log', listener);
