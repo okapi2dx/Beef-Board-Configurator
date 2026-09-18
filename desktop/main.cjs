@@ -92,7 +92,7 @@ async function start() {
     });
   }
   window = new BrowserWindow({ width: 980, height: 740, minWidth: 720, minHeight: 560,
-    title: `Beef Board Configurator v${app.getVersion()}`, autoHideMenuBar: true,
+    title: `Beef Board Configurator ${formatDisplayVersion(app.getVersion())}`, autoHideMenuBar: true,
     webPreferences: { session: ses, preload: path.join(__dirname, 'preload.cjs'), nodeIntegration: false, contextIsolation: true, sandbox: true } });
   window.on('close', event => { if (flasher.busy) event.preventDefault(); });
   app.on('before-quit', event => { if (flasher.busy) event.preventDefault(); });
