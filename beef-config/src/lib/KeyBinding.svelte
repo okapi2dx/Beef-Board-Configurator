@@ -104,7 +104,7 @@
 <div class="key-binding-root">
 	<div class="key-binding-header flex items-center justify-between">
 		<h3 class="text-xl font-bold">{tr('キー割り当て', 'Key Bindings')}</h3>
-		{#if config.iidx_input_mode === InputMode.Keyboard}
+		{#if config.iidx_input_mode === InputMode.Keyboard || (config.iidx_input_mode === InputMode.Joystick && config.version >= 28)}
 			<AlertDialog.Root bind:open={resetOpen}>
 				<AlertDialog.Trigger>
 					{#snippet child({ props })}
