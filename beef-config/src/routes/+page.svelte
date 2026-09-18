@@ -63,9 +63,14 @@
 <main class="app-shell">
 	<title>Beef Board Configurator{appVersion ? ` v${appVersion}` : ''}</title>
 	<div class="app-header">
-		<h1 class="flex items-baseline gap-2 text-2xl font-bold">
-			<span>Beef Board Configurator</span>{#if appVersion}<span class="text-base font-semibold text-muted-foreground">v{appVersion}</span>{/if}
-		</h1>
+		<div class="header-title-row">
+			<h1 class="flex items-baseline gap-2 text-2xl font-bold">
+				<span>Beef Board Configurator</span>{#if appVersion}<span class="text-base font-semibold text-muted-foreground">v{appVersion}</span>{/if}
+			</h1>
+			{#if !appState.device}
+				<Button onclick={connectDevice} disabled={appState.disableConfigTab}>接続 / Connect Device</Button>
+			{/if}
+		</div>
 		<div class="flex items-center gap-3">
 			{#if appState.device && firmwareInfo}
 				<div class="text-sm text-muted-foreground">
@@ -109,9 +114,6 @@
 							<div class="status-subtitle">{appState.device?.productName ?? 'BEEF BOARD'}</div>
 						</div>
 					</div>
-					{#if !appState.device}
-						<Button onclick={connectDevice} disabled={appState.disableConfigTab} class="w-full">接続 / Connect Device</Button>
-					{/if}
 				</div>
 
 				<nav class="sidebar-nav" aria-label={tr('メインメニュー', 'Main menu')}>
@@ -220,6 +222,12 @@
 		display: flex;
 		flex-direction: column;
 		overflow: hidden;
+	}
+	.header-title-row {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		min-width: 0;
 	}
 	.app-header {
 		display: flex;
@@ -394,6 +402,9 @@
 		.app-header {
 			align-items: flex-start;
 			flex-direction: column;
+		}
+		.header-title-row {
+			flex-wrap: wrap;
 		}
 		.desktop-layout {
 			grid-template-columns: 1fr;

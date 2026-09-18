@@ -43,7 +43,8 @@
       "signAndEditExecutable": false
     },
     "portable": {
-      "artifactName": "Beef Board Configurator V1.01.0.exe"
+      "artifactName": "Beef Board Configurator V1.01.0.exe",
+      "unpackDirName": false
     },
     "extraResources": [
       {
