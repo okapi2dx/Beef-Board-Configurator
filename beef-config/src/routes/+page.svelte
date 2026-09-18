@@ -12,6 +12,7 @@
 	import LightDarkModeToggle from '$lib//LightDarkModeToggle.svelte';
 	import LanguageSelect from '$lib/LanguageSelect.svelte';
 	import { initializeLocale, tr } from '$lib/types/locale.svelte';
+	import { formatDisplayVersion } from '$lib/types/version';
 	import { Command, readFirmwareInfo, sendCommand, waitForReconnection, type FirmwareInfo } from '$lib/types/hid';
 
 	import { connectDevice, appState } from '$lib/types/state.svelte';
@@ -68,11 +69,11 @@
 </script>
 
 <main class="app-shell">
-	<title>Beef Board Configurator{appVersion ? ` v${appVersion}` : ''}</title>
+	<title>Beef Board Configurator{appVersion ? ` ${formatDisplayVersion(appVersion)}` : ''}</title>
 	<div class="app-header">
 		<div class="header-title-row">
 			<h1 class="flex items-baseline gap-2 text-2xl font-bold">
-				<span>Beef Board Configurator</span>{#if appVersion}<span class="text-base font-semibold text-muted-foreground">v{appVersion}</span>{/if}
+				<span>Beef Board Configurator</span>{#if appVersion}<span class="text-base font-semibold text-muted-foreground">{formatDisplayVersion(appVersion)}</span>{/if}
 			</h1>
 			{#if !appState.device}
 				<Button variant="outline" class="reset-action-button" onclick={connectDevice} disabled={appState.disableConfigTab}>接続 / Connect Device</Button>
@@ -142,7 +143,7 @@
 						<span class="nav-title firmware-nav-title">
 							<span>{tr('ファームウェア', 'Firmware')}</span>
 							{#if appState.device && firmwareInfo}
-								<span class="firmware-nav-version">{firmwareInfo.version ? `V${firmwareInfo.version}` : '-'}</span>
+								<span class="firmware-nav-version">{firmwareInfo.version ? formatDisplayVersion(firmwareInfo.version) : '-'}</span>
 							{/if}
 						</span>
 						<span class="nav-subtitle">{tr('更新・書き込み', 'Update & flash')}</span>

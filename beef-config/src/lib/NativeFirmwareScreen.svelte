@@ -5,15 +5,12 @@
   import { appState, onDisconnect } from '$lib/types/state.svelte';
   import { Command, sendCommand } from '$lib/types/hid';
   import { tr } from '$lib/types/locale.svelte';
+  import { formatDisplayVersion } from '$lib/types/version';
   let selected = $state<{ name: string; bytes: number; commitHash: string | null; version: string | null } | null>(null);
   let busy = $state(false);
   let log = $state('');
   let message = $state('BEEF BOARD用のHEXファイルを選択してください。');
   let confirmOpen = $state(false);
-  function formatFirmwareVersion(version: string) {
-    const [major = '0', minor = '0', patch = '0'] = version.split('.');
-    return `V${major}.${minor.padStart(2, '0')}.${patch}`;
-  }
   onMount(() => window.beefNative!.onLog(text => log = (log + text).slice(-100000)));
   async function select() {
     busy = true; selected = null; appState.error = undefined;
@@ -55,7 +52,7 @@
     {#if selected}
       <div class="space-y-1">
         <p>{tr('選択済み', 'Selected')}: {selected.name}（{selected.bytes.toLocaleString()} {tr('バイト', 'bytes')}）</p>
-        {#if selected.version}<p>{tr('ファームウェア', 'Firmware')}: <strong>{formatFirmwareVersion(selected.version)}</strong></p>{/if}
+        {#if selected.version}<p>{tr('ファームウェア', 'Firmware')}: <strong>{formatDisplayVersion(selected.version)}</strong></p>{/if}
         <p>{tr('ハッシュ', 'Hash')}: <code>{selected.commitHash ? `0x${selected.commitHash}` : tr('情報なし', 'unavailable')}</code></p>
       </div>
     {/if}

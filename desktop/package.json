@@ -1,6 +1,6 @@
 {
   "name": "beef-board-desktop",
-  "version": "1.1.0",
+  "version": "1.0.0",
   "description": "Windows desktop configurator for Beef Board",
   "author": "Beef Board contributors",
   "license": "GPL-3.0-only",
@@ -43,7 +43,7 @@
       "signAndEditExecutable": false
     },
     "portable": {
-      "artifactName": "Beef Board Configurator V1.01.0.exe",
+      "artifactName": "Beef Board Configurator V1.00.exe",
       "unpackDirName": false
     },
     "extraResources": [

@@ -9,6 +9,7 @@
   import { ATMEL_MAX_TRANSFER_SIZE, DfuDevice } from '$lib/types/dfu';
   import { Command, readFirmwareInfo, sendCommand, type FirmwareInfo } from '$lib/types/hid';
   import { appState, onDisconnect } from '$lib/types/state.svelte';
+  import { formatDisplayVersion } from '$lib/types/version';
 
   let firmwareInfo = $state<FirmwareInfo | null>(null);
   let device: DfuDevice | undefined = $state();
@@ -129,7 +130,7 @@
 
 <div class="space-y-5">
   <h2 class="text-xl font-bold">ファームウェア書き込み</h2>
-  {#if firmwareInfo}<p>Firmware: <strong>{firmwareInfo.version ? `V${firmwareInfo.version}` : 'version unavailable'}</strong></p>{/if}
+  {#if firmwareInfo}<p>Firmware: <strong>{firmwareInfo.version ? formatDisplayVersion(firmwareInfo.version) : 'version unavailable'}</strong></p>{/if}
   <div class="space-y-2">
     <Label for="firmware-file">1. BEEF BOARD用ファームウェア（.hex）を選択</Label>
     <Input id="firmware-file" type="file" accept=".hex" onchange={selectFile} disabled={busy} />
