@@ -46,6 +46,13 @@
 		browserSupported = 'hid' in navigator && 'usb' in navigator;
 	}
 
+	function controllerDisplayName(device: HIDDevice | null): string {
+		if (!device) return 'BEEF BOARD';
+		if (device.vendorId === 0x1ccf && device.productId === 0x1018) return 'IIDX Entry Model';
+		if (device.vendorId === 0x1ccf && device.productId === 0x8048) return 'IIDX Premium Model';
+		return device.productName || 'BEEF BOARD';
+	}
+
 	$effect(() => {
 		const current = appState.device;
 		if (!current) {
@@ -111,7 +118,7 @@
 						<span class:connected={!!appState.device} class="status-dot"></span>
 						<div>
 							<div class="status-title">{appState.device ? tr('接続済み', 'Connected') : tr('未接続', 'Disconnected')}</div>
-							<div class="status-subtitle">{appState.device?.productName ?? 'BEEF BOARD'}</div>
+							<div class="status-subtitle">{controllerDisplayName(appState.device)}</div>
 						</div>
 					</div>
 				</div>
