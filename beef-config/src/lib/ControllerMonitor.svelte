@@ -278,7 +278,7 @@
 	.stage {
 		background: #0f172a;
 		border-radius: 14px;
-		padding: 18px;
+		padding: 20px 22px 22px;
 		color: #e2e8f0;
 		min-width: 0;
 	}
@@ -290,13 +290,13 @@
 	.device {
 		display: flex;
 		align-items: stretch;
-		gap: 1.2%;
-		padding: 1.1%;
-		width: min(100%, 920px);
+		gap: 1.35%;
+		padding: 1.35%;
+		width: min(100%, 1020px);
 		margin: 0 auto;
-		aspect-ratio: 2.08;
+		aspect-ratio: 1.92;
 		background: linear-gradient(145deg, #eef2f6, #aab5c1);
-		border-radius: 16px;
+		border-radius: 18px;
 		border: 3px double #718094;
 		box-shadow: inset 0 0 0 1px #f8fafc;
 	}
@@ -304,17 +304,19 @@
 		flex-direction: row-reverse;
 	}
 	.disc-area {
-		width: 49.5%;
+		width: 47.5%;
 		flex-shrink: 0;
 		display: grid;
 		place-items: center;
-		padding: 1.2%;
+		padding: 1.5%;
 		background: linear-gradient(145deg, #e8edf2, #c4ced8);
 		border: 1px solid #718094;
-		border-radius: 12px;
+		border-radius: 13px;
+		overflow: hidden;
 	}
 	.ring {
-		width: 100%;
+		width: min(100%, 460px);
+		max-height: 100%;
 		padding: 7px;
 		border-radius: 50%;
 		aspect-ratio: 1;
@@ -348,7 +350,7 @@
 		position: relative;
 		flex: 1 1 0;
 		aspect-ratio: auto;
-		padding: 1.2%;
+		padding: 1.4%;
 		background: linear-gradient(145deg, #e8edf2, #c4ced8);
 		border: 1px solid #718094;
 		border-radius: 12px;
