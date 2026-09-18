@@ -72,7 +72,7 @@
 	<div class="app-header">
 		<div class="header-title-row">
 			<h1 class="flex items-baseline gap-2 text-2xl font-bold">
-				<span>Beef Board Configurator</span>{#if appVersion}<span class="text-base font-semibold text-muted-foreground">v{appVersion}</span>{/if}
+				<span>Beef Board Configurator</span>
 			</h1>
 			{#if !appState.device}
 				<Button onclick={connectDevice} disabled={appState.disableConfigTab}>接続 / Connect Device</Button>
@@ -336,8 +336,8 @@
 		color: var(--destructive);
 	}
 	.sidebar-reset {
-		margin-top: auto;
-		padding-top: 16px;
+		margin-top: 16px;
+		padding-top: 0;
 	}
 	.sidebar-item-danger:not(:disabled):hover {
 		background: color-mix(in srgb, var(--destructive) 10%, transparent);
