@@ -65,6 +65,7 @@
 
 	function resetKeys() {
 		config.iidx_keys = new IIDXKeyMapping();
+		config.button_mapping = BUTTON_LAYOUT_LABELS.map((_, i) => i);
 		selectedButton = null;
 		window.removeEventListener('keydown', handleKeyDown);
 		resetOpen = false;
