@@ -213,8 +213,13 @@
 <style>
 	.app-shell {
 		width: min(1500px, 100%);
+		height: 100dvh;
+		max-height: 100dvh;
 		margin: 0 auto;
 		padding: 18px 22px 28px;
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
 	}
 	.app-header {
 		display: flex;
@@ -222,21 +227,29 @@
 		justify-content: space-between;
 		gap: 18px;
 		margin-bottom: 18px;
+		flex: 0 0 auto;
 	}
 	.desktop-layout {
 		display: grid;
 		grid-template-columns: 250px minmax(0, 1fr);
 		gap: 20px;
-		align-items: start;
+		align-items: stretch;
+		flex: 1 1 auto;
+		min-height: 0;
+		overflow: hidden;
 	}
 	.app-sidebar {
-		position: sticky;
-		top: 18px;
+		position: static;
+		min-height: 0;
+		height: 100%;
 		border: 1px solid var(--border);
 		border-radius: 18px;
 		background: var(--card);
 		padding: 14px;
 		box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
 	}
 	.sidebar-device-card {
 		padding: 6px 6px 14px;
@@ -308,7 +321,8 @@
 		color: var(--destructive);
 	}
 	.sidebar-reset {
-		margin-top: 16px;
+		margin-top: auto;
+		padding-top: 16px;
 	}
 	.sidebar-item-danger:not(:disabled):hover {
 		background: color-mix(in srgb, var(--destructive) 10%, transparent);
@@ -345,6 +359,11 @@
 	}
 	.app-content {
 		min-width: 0;
+		min-height: 0;
+		overflow-y: auto;
+		overflow-x: hidden;
+		overscroll-behavior: contain;
+		padding-right: 4px;
 	}
 	.empty-state {
 		min-height: 340px;
@@ -367,7 +386,10 @@
 	}
 	@media (max-width: 820px) {
 		.app-shell {
+			height: auto;
+			max-height: none;
 			padding: 12px;
+			overflow: visible;
 		}
 		.app-header {
 			align-items: flex-start;
@@ -375,9 +397,13 @@
 		}
 		.desktop-layout {
 			grid-template-columns: 1fr;
+			flex: none;
+			overflow: visible;
 		}
 		.app-sidebar {
 			position: static;
+			height: auto;
+			overflow: visible;
 		}
 		.sidebar-nav {
 			display: grid;
@@ -386,6 +412,14 @@
 		.sidebar-label,
 		.sidebar-footer {
 			grid-column: 1 / -1;
+		}
+		.sidebar-reset {
+			margin-top: 16px;
+			padding-top: 0;
+		}
+		.app-content {
+			overflow: visible;
+			padding-right: 0;
 		}
 	}
 </style>
