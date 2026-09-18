@@ -201,7 +201,7 @@
 					{:else}
 						<div class="empty-state">
 							<h2>{tr('BEEF BOARDを接続してください', 'Connect your BEEF BOARD')}</h2>
-							<p>{tr('左側の「接続」ボタンからコントローラーに接続すると設定を変更できます。', 'Use the Connect button on the left to start configuring the controller.')}</p>
+							<p>{tr('「接続」ボタンからコントローラーに接続すると設定を変更できます。', 'Use the Connect button on the left to start configuring the controller.')}</p>
 						</div>
 					{/if}
 				{:else}
