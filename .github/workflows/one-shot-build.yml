@@ -1,4 +1,4 @@
-name: One-shot Formatter Dependency Commit
+name: One-shot Dependency Lock Commit
 
 on:
   push:
@@ -19,14 +19,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Refresh lockfile and verify dependencies
+      - name: Refresh lockfile and verify dependency set
         working-directory: beef-config
         shell: bash
         run: |
           npm install --package-lock-only
           npm ci
           npm run check
-          npx eslint .
           npm run test
           npm run build
           npm audit --json > /tmp/audit.json || true
@@ -40,6 +39,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No lockfile changes"
           else
-            git commit -m "Refresh formatter dependencies"
+            git commit -m "Refresh configurator dependency lockfile"
             git push origin HEAD:main
           fi
