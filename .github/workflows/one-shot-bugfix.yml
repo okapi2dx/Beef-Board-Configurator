@@ -1,0 +1,67 @@
+name: One-shot Bugfix Validation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/one-shot-bugfix.yml
+
+permissions:
+  contents: read
+
+jobs:
+  app:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: beef-config/package-lock.json
+      - name: Install
+        working-directory: beef-config
+        run: npm ci
+      - name: Svelte check
+        working-directory: beef-config
+        run: npm run check
+      - name: UI logic tests
+        working-directory: beef-config
+        shell: bash
+        run: |
+          node --conditions=browser bar-color.test.mjs
+          node --conditions=browser key-mapping.test.mjs
+          node --conditions=browser led-emulator.test.mjs
+      - name: Build
+        working-directory: beef-config
+        run: npm run build
+
+  firmware:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Host tests
+        shell: bash
+        run: |
+          set -e
+          for src in fw/tests/*_test.cpp; do
+            exe="/tmp/$(basename "$src" .cpp)"
+            g++ -std=c++17 -Wall -Wextra -pedantic "$src" -o "$exe"
+            "$exe"
+          done
+      - name: Install AVR-GCC 14.1.0
+        shell: bash
+        run: |
+          curl -L --retry 3 -o /tmp/avr-gcc.tar.bz2 https://github.com/ZakKemble/avr-gcc-build/releases/download/v14.1.0-1/avr-gcc-14.1.0-x64-linux.tar.bz2
+          mkdir -p "$HOME/avr-toolchain"
+          tar -xjf /tmp/avr-gcc.tar.bz2 -C "$HOME/avr-toolchain"
+          AVR_GCC="$(find "$HOME/avr-toolchain" -type f -name avr-gcc -print -quit)"
+          test -n "$AVR_GCC"
+          echo "$(dirname "$AVR_GCC")" >> "$GITHUB_PATH"
+      - name: AVR build
+        working-directory: fw
+        run: make clean && make
