@@ -1,4 +1,4 @@
-name: One-shot Full Audit Follow-up
+name: One-shot Full Audit Final
 
 on:
   push:
@@ -10,90 +10,61 @@ permissions:
   contents: read
 
 jobs:
-  structure:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      - name: Precise structure audit
-        shell: bash
-        run: |
-          python3 - <<'PY'
-          import os, subprocess, json, re
-          files=subprocess.check_output(["git","-c","core.quotePath=false","ls-files"],text=True).splitlines()
-          print("NON_ASCII")
-          for p in files:
-            if any(ord(c)>127 for c in p): print(p)
-          print("\nTOP_LEVEL_SVELTE_REFERENCE_COUNTS")
-          allsrc={}
-          for p in files:
-            if p.startswith("beef-config/src/") and p.endswith((".svelte",".ts",".js")):
-              try: allsrc[p]=open(p,encoding="utf-8").read()
-              except: pass
-          for p in sorted(x for x in allsrc if x.startswith("beef-config/src/lib/") and x.count("/")==3 and x.endswith(".svelte")):
-            base=os.path.basename(p)
-            refs=[q for q,b in allsrc.items() if q!=p and base in b]
-            print(p, "refs=",len(refs), *refs)
-          print("\nFW_SDVX_FILES")
-          for p in files:
-            if p.startswith("fw/devices/sdvx/"): print(p)
-          mk=open("fw/makefile",encoding="utf-8").read()
-          print("SDVX_COMPILED_BY_MAKEFILE", "devices/sdvx" in mk)
-          print("\nVERSIONS")
-          print("VERSION",open("VERSION").read().strip())
-          for p in ["beef-config/package.json","desktop/package.json","fw/version.mk"]:
-            print(p,open(p,encoding="utf-8").read().splitlines()[:8])
-          PY
-
-  dependencies:
+  dependency-details:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Configurator audit
+      - name: Configurator vulnerability details
         working-directory: beef-config
         shell: bash
         run: |
           npm ci
-          npm audit --json > /tmp/config-audit.json || true
-          node -e "const a=require('/tmp/config-audit.json'); console.log(JSON.stringify(a.metadata?.vulnerabilities||{},null,2))"
-      - name: Desktop audit
-        working-directory: desktop
-        shell: bash
-        run: |
-          npm ci
-          npm audit --json > /tmp/desktop-audit.json || true
-          node -e "const a=require('/tmp/desktop-audit.json'); console.log(JSON.stringify(a.metadata?.vulnerabilities||{},null,2))"
+          npm audit --json > /tmp/audit.json || true
+          node - <<'NODE'
+          const a=require('/tmp/audit.json');
+          console.log('SUMMARY', a.metadata?.vulnerabilities);
+          for (const [name,v] of Object.entries(a.vulnerabilities||{})) {
+            console.log(JSON.stringify({name,severity:v.severity,isDirect:v.isDirect,range:v.range,fixAvailable:v.fixAvailable,via:(v.via||[]).map(x=>typeof x==='string'?x:{source:x.source,name:x.name,severity:x.severity,title:x.title,url:x.url,range:x.range})},null,2));
+          }
+          NODE
 
-  firmware:
-    runs-on: ubuntu-latest
+  smoke-inventory:
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-      - name: Run every host firmware test
-        shell: bash
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install and build UI
+        working-directory: beef-config
         run: |
-          set -e
-          for src in fw/tests/*_test.cpp; do
-            exe="/tmp/$(basename "$src" .cpp)"
-            echo "=== $src ==="
-            g++ -std=c++17 -Wall -Wextra -pedantic "$src" -o "$exe"
-            "$exe"
-          done
-      - name: Install AVR-GCC 14.1.0
-        shell: bash
+          npm ci
+          npm run build
+      - name: Install desktop
+        working-directory: desktop
+        run: npm ci
+      - name: Install Playwright browser
+        working-directory: desktop
+        run: npx playwright install msedge
+      - name: Run browser smoke files individually
+        working-directory: desktop
+        shell: pwsh
         run: |
-          curl -L --retry 3 -o /tmp/avr-gcc.tar.bz2 https://github.com/ZakKemble/avr-gcc-build/releases/download/v14.1.0-1/avr-gcc-14.1.0-x64-linux.tar.bz2
-          mkdir -p "$HOME/avr-toolchain"
-          tar -xjf /tmp/avr-gcc.tar.bz2 -C "$HOME/avr-toolchain"
-          AVR_GCC="$(find "$HOME/avr-toolchain" -type f -name avr-gcc -print -quit)"
-          test -n "$AVR_GCC"
-          echo "$(dirname "$AVR_GCC")" >> "$GITHUB_PATH"
-          "$AVR_GCC" --version
-      - name: AVR firmware build
-        working-directory: fw
-        run: make clean && make
+          $tests = @(
+            "features-smoke.cjs",
+            "button-mapping-smoke.cjs",
+            "controller-monitor-response-smoke.cjs",
+            "turntable-test-smoke.cjs"
+          )
+          foreach ($test in $tests) {
+            Write-Host "=== $test ==="
+            node $test
+            Write-Host "EXIT=$LASTEXITCODE"
+            if ($LASTEXITCODE -ne 0) { Write-Host "FAILED_SMOKE=$test" }
+          }
+          exit 0
