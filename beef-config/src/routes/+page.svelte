@@ -75,7 +75,7 @@
 				<span>Beef Board Configurator</span>{#if appVersion}<span class="text-base font-semibold text-muted-foreground">v{appVersion}</span>{/if}
 			</h1>
 			{#if !appState.device}
-				<Button onclick={connectDevice} disabled={appState.disableConfigTab}>接続 / Connect Device</Button>
+				<Button data-preserve-hover="true" onclick={connectDevice} disabled={appState.disableConfigTab}>接続 / Connect Device</Button>
 			{/if}
 		</div>
 		<div class="flex items-center gap-3">
@@ -317,8 +317,14 @@
 		transition: background 120ms ease, border-color 120ms ease, transform 120ms ease;
 	}
 	.sidebar-item:not(:disabled):hover {
-		background: var(--muted);
+		background: color-mix(in srgb, #3b82f6 12%, transparent);
+		border-color: color-mix(in srgb, #3b82f6 42%, transparent);
+		color: #2563eb;
 		transform: translateX(1px);
+	}
+	:global(.dark) .sidebar-item:not(:disabled):hover {
+		background: color-mix(in srgb, #3b82f6 18%, transparent);
+		color: #93c5fd;
 	}
 	.sidebar-item.active {
 		border-color: var(--border);

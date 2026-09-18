@@ -137,11 +137,6 @@
 					</div>
 				</div>
 				<div class="remap-stage">
-					<div class="remap-legend">
-						<span>{tr('物理ボタン', 'Physical')}</span>
-						<span class="remap-legend-arrow">→</span>
-						<span>{tr('動作するボタン', 'Logical')}</span>
-					</div>
 					<div class="remap-keyboard">
 						{#each BUTTON_LAYOUT_LABELS as physicalLabel, i}
 							<div
@@ -236,20 +231,6 @@
 		padding: 14px 16px 16px;
 		color: #e2e8f0;
 		min-width: 0;
-	}
-	.remap-legend {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 8px;
-		margin-bottom: 10px;
-		font-size: 11px;
-		font-weight: 700;
-		color: #cbd5e1;
-	}
-	.remap-legend-arrow {
-		color: #60a5fa;
-		font-size: 14px;
 	}
 	.remap-keyboard {
 		position: relative;
