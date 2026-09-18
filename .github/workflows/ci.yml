@@ -90,3 +90,43 @@ jobs:
       - name: Build firmware
         working-directory: fw
         run: make
+
+
+  windows-artifact:
+    name: Build Windows portable EXE
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            beef-config/package-lock.json
+            desktop/package-lock.json
+      - name: Check synchronized version
+        run: node scripts/sync-version.mjs --check
+      - name: Install configurator dependencies
+        working-directory: beef-config
+        run: npm ci
+      - name: Install desktop dependencies
+        working-directory: desktop
+        run: npm ci
+      - name: Build portable EXE
+        working-directory: desktop
+        run: npm run dist
+      - name: Collect portable EXE
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifact | Out-Null
+          $exe = Get-ChildItem -Path ../outputs/build -Filter *.exe -Recurse | Select-Object -First 1
+          if (-not $exe) { throw "Portable EXE was not produced" }
+          Copy-Item $exe.FullName artifact/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-portable-exe
+          path: artifact/*.exe
+          if-no-files-found: error
+          retention-days: 30
