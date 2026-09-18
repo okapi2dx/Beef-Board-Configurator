@@ -138,6 +138,7 @@ void config_init(config* self) {
 }
 
 void config_update(config* self) {
+  const bool full_reset = self->version == 0;
   switch (self->version) {
     case 0:
       self->reverse_tt = 0;
@@ -272,6 +273,19 @@ void config_update(config* self) {
       if (self->tt_ratio > RATIO_MAX) self->tt_ratio = RATIO_MAX;
       self->version++;
     default: break;
+  }
+
+  // A full reset/new EEPROM should land on today's intended defaults after
+  // all historical migrations have run. Existing configs being migrated are
+  // left untouched.
+  if (full_reset) {
+    self->tt_ratio = 10;
+    self->tt_sustain_ms = 0;
+    self->rainbow_spin_speed = 1;
+    self->tt_effect = TurntableMode::Static;
+    self->tt_static_hsv = { 0, 255, 255 };
+    self->bar_effect = BarMode::Static;
+    self->bar_static_hsv = { 0, 255, 255 };
   }
 
   eeprom_update_block(self, CONFIG_BASE_ADDR, sizeof(config));

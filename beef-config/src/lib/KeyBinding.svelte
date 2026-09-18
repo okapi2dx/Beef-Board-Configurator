@@ -107,7 +107,7 @@
 		<AlertDialog.Root bind:open={resetOpen}>
 			<AlertDialog.Trigger>
 				{#snippet child({ props })}
-					<Button {...props} variant="destructive">{tr('キーを初期化', 'Reset Keys')}</Button>
+					<Button {...props} variant="outline" class="reset-action-button">{tr('キーを初期化', 'Reset Keys')}</Button>
 				{/snippet}
 			</AlertDialog.Trigger>
 			<AlertDialog.Content>
@@ -118,7 +118,7 @@
 					</AlertDialog.Description>
 				</AlertDialog.Header>
 				<AlertDialog.Footer>
-					<AlertDialog.Action onclick={resetKeys}>{tr('初期化', 'Reset')}</AlertDialog.Action>
+					<AlertDialog.Action class="reset-action-button" onclick={resetKeys}>{tr('初期化', 'Reset')}</AlertDialog.Action>
 					<AlertDialog.Cancel>{tr('キャンセル', 'Cancel')}</AlertDialog.Cancel>
 				</AlertDialog.Footer>
 			</AlertDialog.Content>

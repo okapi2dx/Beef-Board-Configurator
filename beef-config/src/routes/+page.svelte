@@ -75,7 +75,7 @@
 				<span>Beef Board Configurator</span>{#if appVersion}<span class="text-base font-semibold text-muted-foreground">v{appVersion}</span>{/if}
 			</h1>
 			{#if !appState.device}
-				<Button onclick={connectDevice} disabled={appState.disableConfigTab}>接続 / Connect Device</Button>
+				<Button variant="outline" class="reset-action-button" onclick={connectDevice} disabled={appState.disableConfigTab}>接続 / Connect Device</Button>
 			{/if}
 		</div>
 		<div class="flex items-center gap-3">
@@ -156,7 +156,7 @@
 							{#snippet child({ props })}
 								<button
 									{...props}
-									class="sidebar-item sidebar-reset-button"
+									class="sidebar-item sidebar-reset-button reset-action-button"
 									disabled={!appState.device || appState.disableConfigTab}
 								>
 									<span class="nav-title">{tr('設定を初期化', 'Reset Config')}</span>
@@ -173,6 +173,8 @@
 							</AlertDialog.Header>
 							<AlertDialog.Footer>
 								<Button
+									variant="outline"
+									class="reset-action-button"
 									onclick={async () => {
 										await sendCommand(Command.ResetConfig);
 										await waitForReconnection();
@@ -337,19 +339,9 @@
 	}
 	.sidebar-reset-button {
 		margin-top: 4px;
-		background: var(--primary);
-		color: var(--primary-foreground);
-		border-color: transparent;
-		box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
 	}
 	.sidebar-reset-button .nav-subtitle {
-		color: color-mix(in srgb, var(--primary-foreground) 72%, transparent);
-	}
-	.sidebar-reset-button:not(:disabled):hover {
-		background: var(--primary);
-		color: var(--primary-foreground);
-		border-color: color-mix(in srgb, #60a5fa 55%, transparent);
-		box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.16);
+		color: #64748b;
 	}
 	.sidebar-item:disabled {
 		opacity: 0.42;
