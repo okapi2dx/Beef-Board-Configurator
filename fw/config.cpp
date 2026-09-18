@@ -22,6 +22,7 @@
 #define CONFIG_CONTROLLER_TYPE_ADDR (CONFIG_BASE_ADDR + offsetof(config, controller_type))
 #define CONFIG_IIDX_INPUT_MODE_ADDR (CONFIG_BASE_ADDR + offsetof(config, iidx_input_mode))
 #define CONFIG_SDVX_INPUT_MODE_ADDR (CONFIG_BASE_ADDR + offsetof(config, sdvx_input_mode))
+#define CONFIG_FIRMWARE_MARKER_ADDR ((uint32_t*)(CONFIG_BASE_ADDR + sizeof(config)))
 
 #include <avr/eeprom.h>
 
@@ -43,6 +44,13 @@ enum {
 };
 
 config current_config;
+
+static void set_default_red_lighting(config* self) {
+  self->tt_effect = TurntableMode::Static;
+  self->tt_static_hsv = { 0, 255, 255 };
+  self->bar_effect = BarMode::Static;
+  self->bar_static_hsv = { 0, 255, 255 };
+}
 
 // Default key mappings
 const IIDXKeyMapping DEFAULT_IIDX_KEYS = {
@@ -135,6 +143,15 @@ void config_init(config* self) {
   }
 
   config_update(self);
+
+  // EEPROM survives DFU flashing. Detect a newly flashed firmware build and
+  // start it with both turntable and light bar on fixed red.
+  const uint32_t flashed_fw = static_cast<uint32_t>(FW_VER);
+  if (eeprom_read_dword(CONFIG_FIRMWARE_MARKER_ADDR) != flashed_fw) {
+    set_default_red_lighting(self);
+    eeprom_update_block(self, CONFIG_BASE_ADDR, sizeof(config));
+    eeprom_update_dword(CONFIG_FIRMWARE_MARKER_ADDR, flashed_fw);
+  }
 }
 
 void config_update(config* self) {
@@ -282,10 +299,7 @@ void config_update(config* self) {
     self->tt_ratio = 10;
     self->tt_sustain_ms = 0;
     self->rainbow_spin_speed = 1;
-    self->tt_effect = TurntableMode::Static;
-    self->tt_static_hsv = { 0, 255, 255 };
-    self->bar_effect = BarMode::Static;
-    self->bar_static_hsv = { 0, 255, 255 };
+    set_default_red_lighting(self);
   }
 
   eeprom_update_block(self, CONFIG_BASE_ADDR, sizeof(config));

@@ -139,10 +139,10 @@
   <div class="space-y-2">
     <h3 class="font-semibold">2. 書き込みモードへ接続</h3>
     {#if appState.device && !device}
-      <Button onclick={bootloader} disabled={busy}>接続中の基板を書き込みモードにする</Button>
+      <Button variant="outline" class="reset-action-button" onclick={bootloader} disabled={busy}>接続中の基板を書き込みモードにする</Button>
     {/if}
     {#if !device}
-      <Button onclick={connect} disabled={busy}>書き込みモードの機器に接続</Button>
+      <Button variant="outline" class="reset-action-button" onclick={connect} disabled={busy}>書き込みモードの機器に接続</Button>
       <p class="text-sm text-muted-foreground">すでに書き込みモードの場合は直接接続できます。WindowsではDFU機器（03EB:2FFB）にWinUSBが必要です。</p>
       <p class="text-sm"><a class="underline" href="https://zadig.akeo.ie/">ドライバー設定（Zadig）</a>：通常のHID機器のドライバーは変更しないでください。</p>
     {:else}<p>接続済み: AT90USB1286 DFU</p>{/if}
@@ -151,7 +151,7 @@
     <h3 class="font-semibold">3. 選択したファームウェアを書き込み</h3>
     <AlertDialog.Root bind:open={confirmOpen}>
       <AlertDialog.Trigger>
-        {#snippet child({ props })}<Button {...props} disabled={!firmware || !device || busy || parsing || finished}>書き込み開始</Button>{/snippet}
+        {#snippet child({ props })}<Button {...props} variant="outline" class="reset-action-button" disabled={!firmware || !device || busy || parsing || finished}>書き込み開始</Button>{/snippet}
       </AlertDialog.Trigger>
       <AlertDialog.Content>
         <AlertDialog.Header>
@@ -160,13 +160,13 @@
         </AlertDialog.Header>
         <AlertDialog.Footer>
           <AlertDialog.Cancel>キャンセル</AlertDialog.Cancel>
-          <AlertDialog.Action onclick={flash}>このファイルを書き込む</AlertDialog.Action>
+          <AlertDialog.Action class="reset-action-button" onclick={flash}>このファイルを書き込む</AlertDialog.Action>
         </AlertDialog.Footer>
       </AlertDialog.Content>
     </AlertDialog.Root>
     <p role="status">{message}</p>
     <Progress value={progress} max={1} />
     {#if busy}<p class="font-semibold">処理中です。USBを抜かず、アプリを閉じないでください。</p>{/if}
-    {#if finished}<Button onclick={restart} disabled={busy}>通常モードで再起動</Button>{/if}
+    {#if finished}<Button variant="outline" class="reset-action-button" onclick={restart} disabled={busy}>通常モードで再起動</Button>{/if}
   </div>
 </div>

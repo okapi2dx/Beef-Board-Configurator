@@ -51,7 +51,7 @@
   <p>{tr('旧beef-toolと同じ書き込みツールを内蔵しています。WebUSBへの接続操作は不要です。', 'The app includes the same flashing tool as beef-tool. WebUSB is not required.')}</p>
   <div class="space-y-2">
     <h3 class="font-semibold">{tr('1. ファームウェアを選択', '1. Select firmware')}</h3>
-    <Button onclick={select} disabled={busy}>{tr('HEXファイルを選択', 'Select HEX file')}</Button>
+    <Button variant="outline" class="reset-action-button" onclick={select} disabled={busy}>{tr('HEXファイルを選択', 'Select HEX file')}</Button>
     {#if selected}
       <div class="space-y-1">
         <p>{tr('選択済み', 'Selected')}: {selected.name}（{selected.bytes.toLocaleString()} {tr('バイト', 'bytes')}）</p>
@@ -62,20 +62,20 @@
   </div>
   <div class="space-y-2">
     <h3 class="font-semibold">{tr('2. 基板を書き込みモードにする', '2. Put the board in flashing mode')}</h3>
-    {#if appState.device}<Button onclick={bootloader} disabled={busy}>{tr('接続中の基板を書き込みモードにする', 'Switch connected board to flashing mode')}</Button>{/if}
+    {#if appState.device}<Button variant="outline" class="reset-action-button" onclick={bootloader} disabled={busy}>{tr('接続中の基板を書き込みモードにする', 'Switch connected board to flashing mode')}</Button>{/if}
     <p>{tr('通常接続できない場合は、B1＋B2を押しながらUSBを接続してください。すでに書き込みモードの場合は、そのまま次へ進めます。', 'If normal connection is unavailable, hold B1 + B2 while connecting USB. If already in flashing mode, continue.')}</p>
     <p class="text-sm text-muted-foreground">{tr('旧beef-toolで使っていたDFUドライバーを利用します。接続できない場合は下のログを確認してください。', 'This uses the DFU driver used by beef-tool. Check the log below if it cannot connect.')}</p>
   </div>
   <div class="space-y-2">
     <h3 class="font-semibold">{tr('3. 書き込み', '3. Flash')}</h3>
     <AlertDialog.Root bind:open={confirmOpen}>
-      <AlertDialog.Trigger>{#snippet child({ props })}<Button {...props} disabled={busy || !selected}>{tr('書き込み開始', 'Start flashing')}</Button>{/snippet}</AlertDialog.Trigger>
+      <AlertDialog.Trigger>{#snippet child({ props })}<Button {...props} variant="outline" class="reset-action-button" disabled={busy || !selected}>{tr('書き込み開始', 'Start flashing')}</Button>{/snippet}</AlertDialog.Trigger>
       <AlertDialog.Content>
         <AlertDialog.Header>
           <AlertDialog.Title>{tr('ファームウェアを書き込みますか？', 'Flash firmware?')}</AlertDialog.Title>
           <AlertDialog.Description>{tr(`${selected?.name} をBEEF BOARDに書き込みます。現在のファームウェアは消去されます。`, `${selected?.name} will be flashed to BEEF BOARD. The current firmware will be erased.`)}</AlertDialog.Description>
         </AlertDialog.Header>
-        <AlertDialog.Footer><AlertDialog.Cancel>{tr('キャンセル', 'Cancel')}</AlertDialog.Cancel><AlertDialog.Action onclick={flash}>{tr('このファイルを書き込む', 'Flash this file')}</AlertDialog.Action></AlertDialog.Footer>
+        <AlertDialog.Footer><AlertDialog.Cancel>{tr('キャンセル', 'Cancel')}</AlertDialog.Cancel><AlertDialog.Action class="reset-action-button" onclick={flash}>{tr('このファイルを書き込む', 'Flash this file')}</AlertDialog.Action></AlertDialog.Footer>
       </AlertDialog.Content>
     </AlertDialog.Root>
     <p role="status">{message}</p>

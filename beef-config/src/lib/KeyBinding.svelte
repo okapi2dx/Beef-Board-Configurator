@@ -4,7 +4,7 @@
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import * as Select from '$lib/components/ui/select';
 	import { Separator } from '$lib/components/ui/separator';
-	import { ControllerType } from '$lib/types/types.svelte';
+	import { ControllerType, InputMode } from '$lib/types/types.svelte';
 	import { IIDXKeyMapping, type Config } from '$lib/types/config.svelte';
 	import { getKeyCode, getKeyName } from '$lib/types/hid-codes';
 	import { appState } from '$lib/types/state.svelte';
@@ -104,29 +104,31 @@
 <div class="key-binding-root">
 	<div class="key-binding-header flex items-center justify-between">
 		<h3 class="text-xl font-bold">{tr('キー割り当て', 'Key Bindings')}</h3>
-		<AlertDialog.Root bind:open={resetOpen}>
-			<AlertDialog.Trigger>
-				{#snippet child({ props })}
-					<Button {...props} variant="outline" class="reset-action-button">{tr('キーを初期化', 'Reset Keys')}</Button>
-				{/snippet}
-			</AlertDialog.Trigger>
-			<AlertDialog.Content>
-				<AlertDialog.Header>
-					<AlertDialog.Title>{tr('キー割り当てを初期化しますか？', 'Reset Key Bindings?')}</AlertDialog.Title>
-					<AlertDialog.Description>
-						{tr('すべてのキー割り当てとボタン配置を初期値に戻します。', 'This will reset all key bindings and the button layout to their default values.')}
-					</AlertDialog.Description>
-				</AlertDialog.Header>
-				<AlertDialog.Footer>
-					<AlertDialog.Action class="reset-action-button" onclick={resetKeys}>{tr('初期化', 'Reset')}</AlertDialog.Action>
-					<AlertDialog.Cancel>{tr('キャンセル', 'Cancel')}</AlertDialog.Cancel>
-				</AlertDialog.Footer>
-			</AlertDialog.Content>
-		</AlertDialog.Root>
+		{#if config.iidx_input_mode === InputMode.Keyboard}
+			<AlertDialog.Root bind:open={resetOpen}>
+				<AlertDialog.Trigger>
+					{#snippet child({ props })}
+						<Button {...props} variant="outline" class="reset-action-button">{tr('キーを初期化', 'Reset Keys')}</Button>
+					{/snippet}
+				</AlertDialog.Trigger>
+				<AlertDialog.Content>
+					<AlertDialog.Header>
+						<AlertDialog.Title>{tr('キー割り当てを初期化しますか？', 'Reset Key Bindings?')}</AlertDialog.Title>
+						<AlertDialog.Description>
+							{tr('すべてのキー割り当てを初期値に戻します。', 'This will reset all key bindings to their default values.')}
+						</AlertDialog.Description>
+					</AlertDialog.Header>
+					<AlertDialog.Footer>
+						<AlertDialog.Action class="reset-action-button" onclick={resetKeys}>{tr('初期化', 'Reset')}</AlertDialog.Action>
+						<AlertDialog.Cancel>{tr('キャンセル', 'Cancel')}</AlertDialog.Cancel>
+					</AlertDialog.Footer>
+				</AlertDialog.Content>
+			</AlertDialog.Root>
+		{/if}
 	</div>
 
 	{#if Object.values(ControllerType).includes(config.controller_type)}
-		{#if config.version >= 28}
+		{#if config.iidx_input_mode === InputMode.Joystick && config.version >= 28}
 			<div class="remap-section">
 				<div class="remap-heading">
 					<div>
@@ -169,10 +171,11 @@
 					</div>
 				</div>
 			</div>
-			<Separator class="mb-4" />
 		{/if}
 
-		<Label>{tr('メインボタン', 'Main Buttons')}</Label>
+		{#if config.iidx_input_mode === InputMode.Keyboard}
+			<Separator class="mb-4" />
+			<Label>{tr('メインボタン', 'Main Buttons')}</Label>
 		<div class="mb-2 flex flex-col">
 			<div class="grid grid-cols-4 gap-2">
 				{#each IIDX_BUTTON_LABELS.main_buttons as label, i}
@@ -217,6 +220,7 @@
 				</Button>
 			</div>
 		</div>
+		{/if}
 	{/if}
 
 	{#if selectedButton !== null}
