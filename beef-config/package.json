@@ -58,5 +58,8 @@
 		"eventemitter3": "^5.0.1",
 		"nrf-intel-hex": "^1.4.0",
 		"svelte-persisted-store": "^0.12.0"
+	},
+	"overrides": {
+		"cookie": "0.7.2"
 	}
 }
