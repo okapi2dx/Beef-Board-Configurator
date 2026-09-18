@@ -263,12 +263,12 @@
 		display: flex;
 		justify-content: space-between;
 		gap: 12px;
-		margin-bottom: 16px;
+		margin-bottom: 10px;
 	}
 	.monitor-layout {
 		display: flex;
 		flex-direction: column;
-		gap: 14px;
+		gap: 10px;
 	}
 	.monitor-panels {
 		display: grid;
@@ -278,23 +278,23 @@
 	.stage {
 		background: #0f172a;
 		border-radius: 14px;
-		padding: 20px 22px 22px;
+		padding: 12px 18px 18px;
 		color: #e2e8f0;
 		min-width: 0;
 	}
 	.stage-title {
 		font-size: 16px;
 		font-weight: 700;
-		margin-bottom: 18px;
+		margin-bottom: 6px;
 	}
 	.device {
 		display: flex;
 		align-items: stretch;
 		gap: 1.35%;
 		padding: 1.35%;
-		width: min(100%, 1020px);
+		width: min(100%, 1120px);
 		margin: 0 auto;
-		aspect-ratio: 1.92;
+		aspect-ratio: 1.88;
 		background: linear-gradient(145deg, #eef2f6, #aab5c1);
 		border-radius: 18px;
 		border: 3px double #718094;
@@ -315,7 +315,7 @@
 		overflow: hidden;
 	}
 	.ring {
-		width: min(100%, 460px);
+		width: min(100%, 500px);
 		max-height: 100%;
 		padding: 7px;
 		border-radius: 50%;
