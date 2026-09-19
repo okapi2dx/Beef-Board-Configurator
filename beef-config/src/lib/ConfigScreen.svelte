@@ -228,7 +228,7 @@
 					<p class="mb-4">{tr('ボタンLEDの調整にはファームウェアV1.00以降へ更新してください。', 'Update to firmware V1.00 or later to adjust button LEDs.')}</p>
 				{/if}
 				{#if config.version >= 19}
-					<Switch label={tr('ターンテーブルとライトバーの発光効果を連動', 'Link Turntable and Light Bar Effects')} bind:checked={config.link_bar_effect} />
+					<Switch label={tr('ターンテーブルとセンターバーの発光効果を連動', 'Link Turntable and Light Bar Effects')} bind:checked={config.link_bar_effect} />
 				{/if}
 				{@const ttModeMapping = Object.values(TurntableMode)}
 				<LightEffectSelect
@@ -255,18 +255,18 @@
 				{/if}
 
 				{#if config.version >= 19 && config.link_bar_effect}
-					<p class="mb-4 text-sm">{tr('ライトバーにターンテーブルと同じ発光効果と色を反映します。', 'The light bar follows the turntable effect and color.')}</p>
+					<p class="mb-4 text-sm">{tr('センターバーにターンテーブルと同じ発光効果と色を反映します。', 'The light bar follows the turntable effect and color.')}</p>
 				{:else}
 					{@const barModeMapping = config.version >= 17 ? Object.values(BarMode) : Object.values(BarMode).filter((mode) => mode !== BarMode.Static)}
 					<LightEffectSelect
-						label={tr('ライトバーの発光効果', 'Light Bar Effect')}
+						label={tr('センターバーの発光効果', 'Light Bar Effect')}
 						bind:effect={config.bar_effect}
 						modeMapping={barModeMapping}
 					/>
 					{#if config.version >= 17 && config.bar_effect === BarMode.Static}
 						<ColorPicker bind:hsv={config.bar_static_hsv} />
 					{:else if config.version < 17}
-						<p class="mb-4 text-sm">{tr('ライトバーの固定色を使うには、対応ファームウェアへ更新してください。', 'Update the firmware to use a static light bar color.')}</p>
+						<p class="mb-4 text-sm">{tr('センターバーの固定色を使うには、対応ファームウェアへ更新してください。', 'Update the firmware to use a static light bar color.')}</p>
 					{/if}
 				{/if}
 
