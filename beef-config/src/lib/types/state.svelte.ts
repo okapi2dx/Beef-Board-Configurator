@@ -9,11 +9,16 @@ class AppState {
 
 export const appState = new AppState();
 
-export async function onDisconnect(): Promise<void> {
+export async function onDisconnect(event?: HIDConnectionEvent): Promise<void> {
+  // Ignore a late disconnect event from the old USB instance after a restart.
+  // Otherwise it can tear down the newly re-enumerated/reconnected device.
+  if (event?.device && appState.device && event.device !== appState.device) return;
+
   navigator.hid.removeEventListener('disconnect', onDisconnect);
-  try { await appState.device?.close(); } catch { /* Device may already be unplugged. */ }
-  appState.disableConfigTab = false;
+  const device = appState.device;
   appState.device = null;
+  try { await device?.close(); } catch { /* Device may already be unplugged. */ }
+  appState.disableConfigTab = false;
   appState.error = undefined;
 }
 
