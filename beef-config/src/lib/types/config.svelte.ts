@@ -281,8 +281,12 @@ export async function updateConfig(config: Config): Promise<void> {
     configView.setUint8(0, config.version);
     configView.setUint8(1, Number(config.reverse_tt));
     configView.setUint8(2, turntableModeToNumber[config.tt_effect]);
-    if (config.version >= 22 && (!Number.isInteger(config.tt_deadzone) || config.tt_deadzone < 0 || config.tt_deadzone > 255))
+    if (config.version >= 33) {
+      if (!Number.isInteger(config.tt_deadzone) || config.tt_deadzone < 0 || config.tt_deadzone > 30)
+        throw new Error('Turntable deadzone must be 0–30°');
+    } else if (config.version >= 22 && (!Number.isInteger(config.tt_deadzone) || config.tt_deadzone < 0 || config.tt_deadzone > 255)) {
       throw new Error('Turntable deadzone must be 0–255 ms');
+    }
     configView.setUint8(3, config.tt_deadzone);
     configView.setUint8(4, barModeToNumber[config.bar_effect]);
     configView.setUint8(5, Number(config.disable_leds));
