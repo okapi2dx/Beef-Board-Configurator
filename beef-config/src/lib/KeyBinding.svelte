@@ -85,19 +85,20 @@
 		config.button_mapping = next;
 	}
 
-	// Match the controller monitor's physical IIDX layout exactly.
+	// Compact IIDX-style layout. B1-B7 are tall keys and E1-E4 are square.
+	// Coordinates use a 310 x 205 design space so the whole panel stays short.
 	const IIDX_REMAP_POSITIONS = [
-		[45, 175],
-		[75, 105],
-		[105, 175],
-		[135, 105],
-		[165, 175],
-		[195, 105],
-		[225, 175],
-		[45, 15],
-		[105, 15],
-		[165, 15],
-		[225, 15]
+		[20, 110],
+		[60, 76],
+		[100, 110],
+		[140, 76],
+		[180, 110],
+		[220, 76],
+		[260, 110],
+		[40, 12],
+		[110, 12],
+		[180, 12],
+		[250, 12]
 	];
 
 </script>
@@ -146,7 +147,7 @@
 								class:function-key={i >= 7}
 								class:changed={config.button_mapping[i] !== i}
 								style:left={`${(IIDX_REMAP_POSITIONS[i][0] / 310) * 100}%`}
-								style:top={`${(IIDX_REMAP_POSITIONS[i][1] / 260) * 100}%`}
+								style:top={`${(IIDX_REMAP_POSITIONS[i][1] / 205) * 100}%`}
 							>
 								<strong>{physicalLabel}</strong>
 								<span class="remap-arrow">↓</span>
@@ -249,31 +250,31 @@
 		font-size: 1rem !important;
 	}
 	.remap-stage {
-		width: min(100%, 486px);
+		width: min(100%, 456px);
 		box-sizing: border-box;
 		margin: 0 auto;
 		background: #0f172a;
 		border-radius: 10px;
-		padding: 8px 12px 10px;
+		padding: 7px 10px 9px;
 		color: #e2e8f0;
 	}
 	.remap-keyboard {
 		position: relative;
 		width: 100%;
-		max-width: 460px;
-		aspect-ratio: 310 / 260;
+		max-width: 430px;
+		aspect-ratio: 310 / 205;
 		margin: 0 auto;
 		background: linear-gradient(145deg, #e8edf2, #c4ced8);
 		border: 2px solid #718094;
 		border-radius: 10px;
 		box-sizing: border-box;
-		box-shadow: inset 0 0 0 1px #f8fafc, 0 6px 16px rgba(2, 6, 23, 0.2);
+		box-shadow: inset 0 0 0 1px #f8fafc, 0 5px 14px rgba(2, 6, 23, 0.18);
 		overflow: hidden;
 	}
 	.remap-key {
 		position: absolute;
-		width: 17%;
-		height: 22%;
+		width: 12.5%;
+		height: 34%;
 		border: 2px solid #7b8797;
 		border-radius: 7px;
 		background: #edf1f6;
@@ -296,7 +297,10 @@
 		transform: translateY(-1px);
 	}
 	.remap-key.function-key {
-		height: 17%;
+		width: 14%;
+		height: auto;
+		aspect-ratio: 1 / 1;
+		padding: 3px;
 	}
 	.remap-key.changed {
 		border-color: #3b82f6;
@@ -319,23 +323,23 @@
 		box-shadow: inset 0 -2px #1e3a5f, 0 0 0 2px rgba(96, 165, 250, 0.18);
 	}
 	.remap-key strong {
-		font-size: 14px;
+		font-size: 13px;
 		font-weight: 800;
 		line-height: 1;
 	}
 	.remap-arrow {
-		font-size: 11px;
+		font-size: 10px;
 		font-weight: 800;
 		line-height: 1;
 		opacity: 0.72;
 	}
 	:global(.remap-select) {
-		height: 27px !important;
-		min-height: 27px !important;
-		width: 54px !important;
-		padding: 0 6px !important;
+		height: 24px !important;
+		min-height: 24px !important;
+		width: 46px !important;
+		padding: 0 5px !important;
 		gap: 2px !important;
-		font-size: 12.5px !important;
+		font-size: 11.5px !important;
 		font-weight: 800 !important;
 		line-height: 1 !important;
 		background: #fff !important;
@@ -351,11 +355,17 @@
 	@media (max-width: 760px) {
 		.remap-stage {
 			width: 100%;
-			padding: 8px;
+			padding: 7px;
 		}
 		.remap-keyboard {
 			width: 100%;
-			max-width: 440px;
+			max-width: 410px;
+		}
+		.remap-key {
+			width: 13%;
+		}
+		.remap-key.function-key {
+			width: 14.5%;
 		}
 	}
 </style>
