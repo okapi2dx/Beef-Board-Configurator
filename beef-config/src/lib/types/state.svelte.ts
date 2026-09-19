@@ -6,6 +6,7 @@ class AppState {
   device = $state<HIDDevice | null>(null);
   error = $state<string | undefined>();
   connecting = $state(false);
+  dfuReconnectAvailable = $state(false);
 }
 
 export const appState = new AppState();
@@ -26,6 +27,7 @@ export async function onDisconnect(event?: HIDConnectionEvent): Promise<void> {
 async function finishConnection(device: HIDDevice | null): Promise<void> {
   appState.device = device;
   if (!device) return;
+  appState.dfuReconnectAvailable = false;
   navigator.hid.addEventListener('disconnect', onDisconnect);
   appState.error = undefined;
 }
@@ -59,6 +61,7 @@ export async function reconnectDfuDevice(): Promise<void> {
       if (dfu) {
         await dfu.startApplication();
         await waitForReconnection(20000);
+        appState.dfuReconnectAvailable = false;
         return;
       }
     } catch (err) {
@@ -72,6 +75,7 @@ export async function reconnectDfuDevice(): Promise<void> {
       nativeExitCode = result.exitCode;
       if (result.success) {
         await waitForReconnection(20000);
+        appState.dfuReconnectAvailable = false;
         return;
       }
 
@@ -80,6 +84,7 @@ export async function reconnectDfuDevice(): Promise<void> {
       // though the controller already reached normal HID mode.
       try {
         await waitForReconnection(6000);
+        appState.dfuReconnectAvailable = false;
         return;
       } catch {
         // Neither DFU path produced a reconnect; report the useful details.
