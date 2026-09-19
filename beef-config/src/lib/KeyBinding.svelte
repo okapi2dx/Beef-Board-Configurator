@@ -145,6 +145,7 @@
 								class="remap-key"
 								class:black={i < 7 && i % 2 === 1}
 								class:function-key={i >= 7}
+								class:changed={config.button_mapping[i] !== i}
 								style:left={`${(IIDX_REMAP_POSITIONS[i][0] / 310) * 100}%`}
 								style:top={`${(IIDX_REMAP_POSITIONS[i][1] / 260) * 100}%`}
 							>
@@ -236,51 +237,56 @@
 		margin-bottom: 4px;
 	}
 	.remap-section {
-		margin-bottom: 10px;
+		margin-bottom: 6px;
 	}
 	.remap-heading {
-		margin-bottom: 5px;
+		margin-bottom: 4px;
 	}
 	.remap-heading h3 {
 		margin-top: 0 !important;
-		margin-bottom: 4px !important;
+		margin-bottom: 2px !important;
+		font-size: 1rem !important;
 	}
 	.remap-heading p {
-		line-height: 1.35;
+		font-size: 12.5px;
+		line-height: 1.3;
 	}
 	.remap-stage {
+		width: fit-content;
+		max-width: 100%;
+		margin: 0 auto;
 		background: #0f172a;
-		border-radius: 12px;
-		padding: 9px 12px 11px;
+		border-radius: 10px;
+		padding: 8px 10px 10px;
 		color: #e2e8f0;
 		min-width: 0;
 	}
 	.remap-keyboard {
 		position: relative;
-		width: min(100%, 520px);
+		width: min(100%, 460px);
 		aspect-ratio: 310 / 260;
 		margin: 0 auto;
-		padding: 1.5%;
+		padding: 1.25%;
 		background: linear-gradient(145deg, #e8edf2, #c4ced8);
 		border: 2px solid #718094;
-		border-radius: 12px;
-		box-shadow: inset 0 0 0 1px #f8fafc, 0 8px 20px rgba(2, 6, 23, 0.22);
+		border-radius: 10px;
+		box-shadow: inset 0 0 0 1px #f8fafc, 0 6px 16px rgba(2, 6, 23, 0.2);
 	}
 	.remap-key {
 		position: absolute;
-		width: 17%;
-		height: 22%;
+		width: 16.5%;
+		height: 21%;
 		border: 2px solid #7b8797;
-		border-radius: 8px;
+		border-radius: 7px;
 		background: #edf1f6;
 		color: #172033;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 2px;
-		padding: 5px;
-		box-shadow: inset 0 -3px #bac4d0;
+		gap: 1px;
+		padding: 4px;
+		box-shadow: inset 0 -2px #bac4d0;
 		transition: background 120ms ease, border-color 120ms ease, color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
 	}
 	.remap-key:hover,
@@ -292,7 +298,12 @@
 		transform: translateY(-1px);
 	}
 	.remap-key.function-key {
-		height: 17%;
+		height: 16.5%;
+	}
+	.remap-key.changed {
+		border-color: #3b82f6;
+		background: #eff6ff;
+		box-shadow: inset 0 -2px #bfdbfe, 0 0 0 2px rgba(59, 130, 246, 0.16);
 	}
 	.remap-key.black {
 		background: #202b3b;
@@ -302,26 +313,31 @@
 	.remap-key.black:focus-within {
 		background: #273b5f;
 		border-color: #60a5fa;
-		box-shadow: inset 0 -3px #1e3a5f, 0 0 0 2px rgba(96, 165, 250, 0.16);
+		box-shadow: inset 0 -2px #1e3a5f, 0 0 0 2px rgba(96, 165, 250, 0.16);
+	}
+	.remap-key.black.changed {
+		background: #243b5c;
+		border-color: #60a5fa;
+		box-shadow: inset 0 -2px #1e3a5f, 0 0 0 2px rgba(96, 165, 250, 0.18);
 	}
 	.remap-key strong {
-		font-size: 15px;
+		font-size: 14px;
 		font-weight: 800;
 		line-height: 1;
 	}
 	.remap-arrow {
-		font-size: 14px;
+		font-size: 11px;
 		font-weight: 800;
 		line-height: 1;
-		opacity: 0.78;
+		opacity: 0.72;
 	}
 	:global(.remap-select) {
-		height: 30px !important;
-		min-height: 30px !important;
-		width: 58px !important;
-		padding: 0 7px !important;
-		gap: 3px !important;
-		font-size: 13px !important;
+		height: 27px !important;
+		min-height: 27px !important;
+		width: 54px !important;
+		padding: 0 6px !important;
+		gap: 2px !important;
+		font-size: 12.5px !important;
 		font-weight: 800 !important;
 		line-height: 1 !important;
 		background: #fff !important;
@@ -336,11 +352,12 @@
 	}
 	@media (max-width: 760px) {
 		.remap-stage {
-			padding: 10px;
+			width: 100%;
+			padding: 8px;
 			overflow-x: auto;
 		}
 		.remap-keyboard {
-			width: 500px;
+			width: 440px;
 		}
 	}
 </style>
