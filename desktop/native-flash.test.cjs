@@ -55,6 +55,29 @@ test('native writer flashes first, then runs start_app only after successful ver
   }
 });
 
+test('native DFU reconnect starts the normal application without selected firmware', async () => {
+  const calls = [];
+  const children = [];
+  const flasher = createFlasher('C:/tools', (exe, argv, opts) => {
+    const child = new EventEmitter();
+    child.stdout = new EventEmitter();
+    child.stderr = new EventEmitter();
+    calls.push({ exe, argv, opts });
+    children.push(child);
+    return child;
+  });
+
+  const resultPromise = flasher.restartDfu(() => {});
+  while (!children.length) await new Promise(r => setTimeout(r, 5));
+  assert.equal(path.basename(calls[0].exe), 'avrdude.exe');
+  assert.deepEqual(calls[0].argv.slice(-7), ['-c', 'flip1', '-p', 'usb1286', '-F', '-x', 'start_app']);
+  assert.equal(calls[0].opts.shell, false);
+  assert.equal(calls[0].opts.windowsHide, true);
+  children[0].emit('close', 0);
+  assert.deepEqual(await resultPromise, { success: true, exitCode: 0 });
+  assert.equal(flasher.busy, false);
+});
+
 test('native writer never runs start_app after a failed flash', async () => {
   const folder = await fs.mkdtemp(path.join(__dirname, 'test-flash-fail-'));
   const filename = path.join(folder, 'firmware.hex');
