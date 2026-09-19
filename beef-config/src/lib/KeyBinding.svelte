@@ -4,6 +4,7 @@
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import * as Select from '$lib/components/ui/select';
 	import { Separator } from '$lib/components/ui/separator';
+	import HelpText from '$lib/HelpText.svelte';
 	import { ControllerType, InputMode } from '$lib/types/types.svelte';
 	import { IIDXKeyMapping, type Config } from '$lib/types/config.svelte';
 	import { getKeyCode, getKeyName } from '$lib/types/hid-codes';
@@ -131,12 +132,10 @@
 		{#if config.iidx_input_mode === InputMode.Joystick && config.version >= 28}
 			<div class="remap-section">
 				<div class="remap-heading">
-					<div>
-						<h3 class="text-xl font-bold">{tr('ボタン配置入れ替え', 'Button Layout Remapping')}</h3>
-						<p class="text-sm text-muted-foreground">
-							{tr('物理ボタンを別の論理ボタンとして動作させます。同じ論理ボタンへの重複割り当ても可能です。', 'Map each physical button to a logical button. Multiple physical buttons may share the same logical button.')}
-						</p>
-					</div>
+					<h3 class="text-xl font-bold">{tr('ボタン配置入れ替え', 'Button Layout Remapping')}</h3>
+					<HelpText label={tr('ボタン配置入れ替え', 'Button Layout Remapping')}>
+						{tr('物理ボタンを別の論理ボタンとして動作させます。同じ論理ボタンへの重複割り当ても可能です。', 'Map each physical button to a logical button. Multiple physical buttons may share the same logical button.')}
+					</HelpText>
 				</div>
 				<div class="remap-stage">
 					<div class="remap-keyboard">
@@ -240,16 +239,14 @@
 		margin-bottom: 6px;
 	}
 	.remap-heading {
-		margin-bottom: 4px;
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		margin-bottom: 6px;
 	}
 	.remap-heading h3 {
-		margin-top: 0 !important;
-		margin-bottom: 2px !important;
+		margin: 0 !important;
 		font-size: 1rem !important;
-	}
-	.remap-heading p {
-		font-size: 12.5px;
-		line-height: 1.3;
 	}
 	.remap-stage {
 		width: min(100%, 486px);
