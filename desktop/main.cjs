@@ -26,6 +26,7 @@ process.on('exit', code => startupLog(`process exit code=${code}`));
 
 let window;
 let activateWhenReady = false;
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 function activateMainWindow() {
   if (!window || window.isDestroyed()) {
@@ -71,6 +72,23 @@ function formatDisplayVersion(version) {
   const [, major, minor, patch = '0'] = match;
   const base = `V${major}.${minor.padStart(2, '0')}`;
   return Number(patch) === 0 ? base : `${base}.${Number(patch)}`;
+}
+
+async function loadUiWithRetry(targetUrl, attempts = 3) {
+  let lastError;
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      startupLog(`UI load attempt ${attempt}/${attempts}`);
+      await window.loadURL(targetUrl);
+      startupLog(`UI load attempt ${attempt} succeeded`);
+      return;
+    } catch (error) {
+      lastError = error;
+      startupLog(`UI load attempt ${attempt} failed: ${error?.stack || error}`);
+      if (attempt < attempts) await sleep(500);
+    }
+  }
+  throw lastError || new Error('UI load failed');
 }
 
 async function start() {
@@ -154,13 +172,68 @@ async function start() {
   window = new BrowserWindow({ width: 980, height: 740, minWidth: 720, minHeight: 560, show: false,
     title: `Beef Board Configurator ${formatDisplayVersion(app.getVersion())}`, autoHideMenuBar: true,
     webPreferences: { session: ses, preload: path.join(__dirname, 'preload.cjs'), nodeIntegration: false, contextIsolation: true, sandbox: true } });
+
+  let rendererRecoveryCount = 0;
+  let startupShowTimer = setTimeout(() => {
+    if (!window || window.isDestroyed() || window.isVisible()) return;
+    startupLog('startup visibility fallback fired');
+    activateMainWindow();
+  }, 4000);
+
+  const clearStartupShowTimer = () => {
+    if (!startupShowTimer) return;
+    clearTimeout(startupShowTimer);
+    startupShowTimer = null;
+  };
+
   window.once('ready-to-show', () => {
     startupLog('window ready-to-show');
+    clearStartupShowTimer();
     activateMainWindow();
+  });
+  window.webContents.on('did-finish-load', () => {
+    startupLog('renderer did-finish-load');
+    clearStartupShowTimer();
+    rendererRecoveryCount = 0;
+    activateMainWindow();
+  });
+  window.webContents.on('did-fail-load', (_event, errorCode, errorDescription, validatedURL, isMainFrame) => {
+    startupLog(`did-fail-load main=${isMainFrame} code=${errorCode} url=${validatedURL} error=${errorDescription}`);
+  });
+  window.webContents.on('render-process-gone', (_event, details) => {
+    startupLog(`render-process-gone reason=${details.reason} exitCode=${details.exitCode}`);
+    if (details.reason === 'clean-exit' || !window || window.isDestroyed()) return;
+    if (rendererRecoveryCount >= 2) {
+      try {
+        dialog.showErrorBox(
+          '表示プロセスの復旧に失敗しました',
+          `アプリの表示プロセスが繰り返し終了しました。\n\n起動ログ: ${startupLogPath}`
+        );
+      } catch { /* best effort */ }
+      return;
+    }
+    rendererRecoveryCount++;
+    setTimeout(() => {
+      if (!window || window.isDestroyed()) return;
+      startupLog(`renderer recovery attempt ${rendererRecoveryCount}`);
+      void loadUiWithRetry(ORIGIN + '/', 2).then(() => activateMainWindow()).catch(error => {
+        startupLog(`renderer recovery failed: ${error?.stack || error}`);
+      });
+    }, 300);
+  });
+  window.on('unresponsive', () => {
+    startupLog('window unresponsive');
+    activateMainWindow();
+  });
+  window.on('responsive', () => startupLog('window responsive'));
+  window.on('closed', () => {
+    clearStartupShowTimer();
+    window = undefined;
   });
   window.on('close', event => { if (flasher.busy) event.preventDefault(); });
   app.on('before-quit', event => { if (flasher.busy) event.preventDefault(); });
   window.removeMenu();
+
   const external = url => { if (url.startsWith('https://github.com/') || url.startsWith('https://zadig.akeo.ie/')) void shell.openExternal(url); };
   window.webContents.setWindowOpenHandler(({ url }) => { external(url); return { action: 'deny' }; });
   window.webContents.on('will-navigate', (event, url) => { if (!trusted(url)) { event.preventDefault(); external(url); } });
@@ -168,11 +241,10 @@ async function start() {
     // Honor the firmware screen's close guard; never force-close a flashing session.
     void dialog.showMessageBox(window, { type: 'warning', message: '書き込み中です。完了するまでアプリを閉じないでください。' });
   });
+
   startupLog('loading UI');
-  await window.loadURL(ORIGIN + '/');
+  await loadUiWithRetry(ORIGIN + '/');
   startupLog('UI loaded');
-  // ready-to-show can be delayed or skipped on some Windows launch races.
-  // Ensure the first instance always becomes visible once the UI has loaded.
+  clearStartupShowTimer();
   activateMainWindow();
-  if (activateWhenReady) activateMainWindow();
 }
