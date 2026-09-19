@@ -1,3 +1,4 @@
+import { DfuDevice } from "$lib/types/dfu";
 import { Command, detectDevice, sendCommand, waitForReconnection } from "$lib/types/hid";
 
 class AppState {
@@ -44,19 +45,52 @@ export async function connectDevice(): Promise<void> {
 
 export async function reconnectDfuDevice(): Promise<void> {
   if (appState.connecting) return;
-  if (!window.beefNative) {
-    await connectDevice();
-    return;
-  }
 
   appState.connecting = true;
   appState.error = undefined;
+  let webUsbError: unknown;
+  let nativeExitCode: number | null = null;
+
   try {
-    const result = await window.beefNative.restartDfu();
-    if (!result.success) {
-      throw new Error(`DFUデバイスを通常モードへ切り替えられませんでした（終了コード: ${result.exitCode ?? 'unknown'}）`);
+    // Prefer WebUSB while the reconnect click still carries a user gesture.
+    // This works when the Atmel DFU interface is bound to WinUSB.
+    try {
+      const dfu = await DfuDevice.connect();
+      if (dfu) {
+        await dfu.startApplication();
+        await waitForReconnection(20000);
+        return;
+      }
+    } catch (err) {
+      webUsbError = err;
     }
-    await waitForReconnection(20000);
+
+    // Fall back to the bundled patched AVRDUDE. This covers the legacy
+    // beef-tool/libusb driver path that Chromium cannot claim through WebUSB.
+    if (window.beefNative) {
+      const result = await window.beefNative.restartDfu();
+      nativeExitCode = result.exitCode;
+      if (result.success) {
+        await waitForReconnection(20000);
+        return;
+      }
+
+      // START_APP intentionally disconnects USB immediately. Some AVRDUDE/
+      // driver combinations can therefore return a non-zero exit code even
+      // though the controller already reached normal HID mode.
+      try {
+        await waitForReconnection(6000);
+        return;
+      } catch {
+        // Neither DFU path produced a reconnect; report the useful details.
+      }
+    }
+
+    const webUsbDetail = webUsbError ? `; WebUSB: ${webUsbError}` : '';
+    const nativeDetail = window.beefNative
+      ? `; AVRDUDE終了コード: ${nativeExitCode ?? 'unknown'}`
+      : '';
+    throw new Error(`DFUデバイスを通常モードへ切り替えられませんでした${webUsbDetail}${nativeDetail}`);
   } catch (err) {
     await onDisconnect();
     appState.error = `Error communicating with device: ${err}`;
