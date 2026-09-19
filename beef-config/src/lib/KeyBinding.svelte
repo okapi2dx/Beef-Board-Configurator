@@ -136,7 +136,7 @@
 					<h3 class="text-xl font-bold">{tr('ボタン配置入れ替え', 'Button Layout Remapping')}</h3>
 					<HelpText label={tr('ボタン配置入れ替え', 'Button Layout Remapping')}>
 						<p>{tr('各物理ボタン（B1～B7、E1～E4）を、どの論理ボタンとして入力するか変更できます。', 'Choose which logical button each physical button (B1-B7, E1-E4) should send.')}</p>
-						<p>{tr('各ボタン内のプルダウンから割り当て先を選択します。複数の物理ボタンに同じ割り当て先を設定することもできます。', 'Select the destination from the drop-down inside each button. Multiple physical buttons may share the same destination.')}</p>
+						<p>{tr('各ボタンのプルダウンから割り当て先を選びます。同じ割り当て先を複数の物理ボタンに設定することもできます。', 'Choose the destination from each button\'s drop-down. Multiple physical buttons can use the same destination.')}</p>
 					</HelpText>
 				</div>
 				<div class="remap-stage">
