@@ -78,12 +78,12 @@
 			<Button
 				variant="outline"
 				class="reset-action-button"
-				onclick={() => appState.device ? reconnectDevice() : (nativeFlash && activeTab === Tab.Firmware ? reconnectDfuDevice() : connectDevice())}
+				onclick={() => appState.device ? reconnectDevice() : (appState.dfuReconnectAvailable ? reconnectDfuDevice() : connectDevice())}
 				disabled={appState.disableConfigTab || appState.connecting}
 			>
 				{#if appState.connecting}
 					{tr('接続中…', 'Connecting…')}
-				{:else if appState.device || (nativeFlash && activeTab === Tab.Firmware)}
+				{:else if appState.device || appState.dfuReconnectAvailable}
 					{tr('再接続', 'Reconnect')}
 				{:else}
 					{tr('接続', 'Connect')}
