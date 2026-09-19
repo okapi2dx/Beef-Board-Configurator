@@ -1,0 +1,37 @@
+name: One-shot Firmware GCC14 Build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/one-shot-firmware-gcc14.yml
+
+permissions:
+  contents: read
+
+jobs:
+  firmware:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install AVR-GCC 14.1.0
+        shell: bash
+        run: |
+          set -euxo pipefail
+          curl -L --retry 3 -o /tmp/avr-gcc.tar.bz2             https://github.com/ZakKemble/avr-gcc-build/releases/download/v14.1.0-1/avr-gcc-14.1.0-x64-linux.tar.bz2
+          mkdir -p "$HOME/avr-gcc"
+          tar -xjf /tmp/avr-gcc.tar.bz2 -C "$HOME/avr-gcc" --strip-components=1
+          echo "$HOME/avr-gcc/bin" >> "$GITHUB_PATH"
+      - name: Toolchain version
+        run: avr-gcc --version
+      - name: Build firmware
+        working-directory: fw
+        run: make -j2
+      - uses: actions/upload-artifact@v4
+        with:
+          name: beef-firmware
+          path: fw/beef.hex
+          if-no-files-found: error
+          retention-days: 1
