@@ -1,5 +1,5 @@
 name: One-shot Turntable A-B Portable Build
-# rerun after connect-selector fix
+# rerun after HID mock fix
 
 on:
   push:
