@@ -80,6 +80,7 @@
     {#if appState.device}<Button variant="outline" class="reset-action-button" onclick={bootloader} disabled={busy}>{tr('接続中の基板を書き込みモードにする', 'Switch connected board to flashing mode')}</Button>{/if}
     <p>{tr('通常接続できない場合は、B1＋B2を押しながらUSBを接続してください。すでに書き込みモードの場合は、そのまま次へ進めます。', 'If normal connection is unavailable, hold B1 + B2 while connecting USB. If already in flashing mode, continue.')}</p>
     <p class="text-sm text-muted-foreground">{tr('旧beef-toolで使っていたDFUドライバーを利用します。接続できない場合は下のログを確認してください。', 'This uses the DFU driver used by beef-tool. Check the log below if it cannot connect.')}</p>
+    <p class="text-sm text-muted-foreground">{tr('書き込みモードから通常モードへ戻す場合は、画面上部の「再接続」を押してください。USBを抜き差しせず自動で再接続します。', 'To leave flashing mode, press Reconnect at the top of the window. The board returns to normal mode and reconnects automatically without unplugging USB.')}</p>
   </div>
   <div class="space-y-2">
     <h3 class="font-semibold">{tr('3. 書き込み', '3. Flash')}</h3>
