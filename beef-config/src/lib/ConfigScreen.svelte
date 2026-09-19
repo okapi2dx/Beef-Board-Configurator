@@ -331,7 +331,7 @@
 						<div class="mb-4">
 							<ToolTipLabel forId="bar-leds" label={tr('センターバーLED数', 'Center Bar LEDs')}>
 								<p>{tr('センターバーのRGB LED数です。初期値は16です。', 'Sets the center bar RGB LED count. The default is 16.')}</p>
-								<p>{tr('実際に接続しているLED数と同じ値にしてください。変更後は「再接続」で反映されます。', 'Use the actual number of connected LEDs. Changes are applied after Reconnect.')}</p>
+								<p>{tr('変更後は「再接続」で反映されます。', 'Changes are applied after Reconnect.')}</p>
 							</ToolTipLabel>
 							<Input
 								class="w-1/5"
