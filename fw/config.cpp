@@ -123,7 +123,7 @@ bool validate_config(const config &self) {
   if (self.rainbow_spin_speed == 0) {
     return false;
   }
-  if (self.tt_leds == 0) {
+  if (self.tt_leds == 0 || self.bar_leds == 0) {
     return false;
   }
   if (self.link_bar_effect > 1) {
@@ -291,6 +291,10 @@ void config_update(config* self) {
       self->tt_ratio = self->tt_ratio == 0 ? 10 : static_cast<uint8_t>((10 + self->tt_ratio - 1) / self->tt_ratio);
       if (self->tt_ratio < RATIO_MIN) self->tt_ratio = RATIO_MIN;
       if (self->tt_ratio > RATIO_MAX) self->tt_ratio = RATIO_MAX;
+      self->version++;
+    case 31:
+      // Configurable physical center-bar LED count.
+      self->bar_leds = 16;
       self->version++;
     default: break;
   }
