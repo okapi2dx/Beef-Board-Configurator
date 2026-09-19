@@ -40,14 +40,27 @@
 	async function changeControllerMode(mode: ControllerType): Promise<void> {
 		if (!config || mode === config.controller_type || controllerRestarting) return;
 		controllerRestarting = true;
+		appState.connecting = true;
+		appState.error = undefined;
 		try {
 			config.controller_type = mode;
 			await updateConfig(config);
-			await sendCommand(Command.Restart);
-			await waitForReconnection();
+
+			// Changing controller mode changes the USB identity. The device can
+			// disappear before Chromium resolves sendFeatureReport(), so a send
+			// error can still mean that the restart command succeeded.
+			try {
+				await sendCommand(Command.Restart);
+			} catch {
+				// Always continue into USB re-enumeration/reconnection.
+			}
+
+			await waitForReconnection(20000);
+			config = await readConfig();
 		} catch (err) {
 			appState.error = `${err}`;
 		} finally {
+			appState.connecting = false;
 			controllerRestarting = false;
 		}
 	}
