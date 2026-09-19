@@ -138,7 +138,7 @@
 					</button>
 					<button class:active={activeTab === Tab.Config && settingsSection === 'led'} class="sidebar-item" disabled={!appState.device || appState.disableConfigTab} onclick={() => { activeTab = Tab.Config; settingsSection = 'led'; }}>
 						<span class="nav-title">{tr('LED設定', 'LEDs')}</span>
-						<span class="nav-subtitle">{tr('ボタン・ターンテーブル・センターバー', 'Buttons, turntable & bar')}</span>
+						<span class="nav-subtitle led-nav-subtitle">{tr('ボタン・ターンテーブル・センターバー', 'Buttons, turntable & bar')}</span>
 					</button>
 					<button class:active={activeTab === Tab.Config && settingsSection === 'keys'} class="sidebar-item" disabled={!appState.device || appState.disableConfigTab} onclick={() => { activeTab = Tab.Config; settingsSection = 'keys'; }}>
 						<span class="nav-title">{tr('キー割り当て', 'Key Bindings')}</span>
@@ -381,6 +381,10 @@
 		display: block;
 		margin-top: 2px;
 		line-height: 1.35;
+	}
+	.led-nav-subtitle {
+		font-size: 10px;
+		white-space: nowrap;
 	}
 	.app-content {
 		min-width: 0;
