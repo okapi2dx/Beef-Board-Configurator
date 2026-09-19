@@ -3,7 +3,7 @@
 #include "rgb_helper.h"
 
 CRGB* tt_leds;
-CRGB bar_leds[LIGHT_BAR_LEDS];
+CRGB* bar_leds;
 
 namespace RgbHelper {
   // Pin mapping can be found in FastLED/src/platforms/avr/fastpin_avr.h
@@ -16,6 +16,7 @@ namespace RgbHelper {
   uint32_t min_micros = 0;
   uint8_t tt_anim_normalise = 0;
   uint8_t num_tt_leds = 0;
+  uint8_t num_bar_leds = 0;
 
   CLEDController* tt_controller;
   CLEDController* bar_controller;
@@ -29,12 +30,14 @@ namespace RgbHelper {
     tt_anim_normalise = 24 / cfg.tt_leds;
     if (tt_anim_normalise == 0) tt_anim_normalise = 1;
     num_tt_leds = cfg.tt_leds;
+    num_bar_leds = cfg.bar_leds;
     tt_leds = static_cast<CRGB*>(calloc(num_tt_leds, sizeof(CRGB)));
+    bar_leds = static_cast<CRGB*>(calloc(num_bar_leds, sizeof(CRGB)));
     update(cfg);
 
     tt_controller = &FastLED.addLeds<NEOPIXEL, TT_DATA_PIN>(tt_leds, num_tt_leds)
       .setDither(DISABLE_DITHER);
-    bar_controller = &FastLED.addLeds<NEOPIXEL, BAR_DATA_PIN>(bar_leds, LIGHT_BAR_LEDS)
+    bar_controller = &FastLED.addLeds<NEOPIXEL, BAR_DATA_PIN>(bar_leds, num_bar_leds)
       .setDither(DISABLE_DITHER);
     FastLED.setMaxRefreshRate(0); // We have our own frame rate limiter
   }
