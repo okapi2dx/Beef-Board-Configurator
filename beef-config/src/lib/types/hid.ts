@@ -66,13 +66,26 @@ function isBeefDevice(device: HIDDevice): boolean {
   return false;
 }
 
+async function openVerifiedConfigDevice(devices: HIDDevice[]): Promise<HIDDevice | null> {
+  for (const device of devices.filter(isBeefDevice)) {
+    try {
+      if (!device.opened) await device.open();
+      await device.receiveFeatureReport(ReportId.Config);
+      return device;
+    } catch {
+      try { await device.close(); } catch { /* Try the next authorized interface. */ }
+    }
+  }
+  return null;
+}
+
 export async function waitForReconnection(timeoutMs = 15000): Promise<void> {
   await onDisconnect();
   const deadline = Date.now() + timeoutMs;
   const requestPermissionAt = Date.now() + 2000;
   let requestedNewIdentity = false;
   while (Date.now() < deadline) {
-    let selectedDevice = (await navigator.hid.getDevices()).find(isBeefDevice);
+    let selectedDevice = await openVerifiedConfigDevice(await navigator.hid.getDevices());
     // Changing controller mode also changes VID/PID. Chromium may therefore
     // treat the restarted board as a new WebHID identity even though Electron's
     // device policy allows it. Re-run the chooser once in the desktop app so
@@ -80,13 +93,14 @@ export async function waitForReconnection(timeoutMs = 15000): Promise<void> {
     if (!selectedDevice && !requestedNewIdentity && window.beefNative && Date.now() >= requestPermissionAt) {
       requestedNewIdentity = true;
       try {
-        selectedDevice = (await navigator.hid.requestDevice({ filters: beefHidFilters })).find(isBeefDevice);
+        selectedDevice = await openVerifiedConfigDevice(
+          await navigator.hid.requestDevice({ filters: beefHidFilters })
+        );
       } catch {
         // Keep polling: getDevices() may become available after enumeration.
       }
     }
     if (selectedDevice) {
-      if (!selectedDevice.opened) await selectedDevice.open();
       appState.device = selectedDevice;
       navigator.hid.addEventListener('disconnect', onDisconnect);
       appState.error = undefined;
@@ -98,10 +112,7 @@ export async function waitForReconnection(timeoutMs = 15000): Promise<void> {
 }
 
 export async function detectAuthorizedDevice(): Promise<HIDDevice | null> {
-  const selectedDevice = (await navigator.hid.getDevices()).find(isBeefDevice);
-  if (!selectedDevice) return null;
-  if (!selectedDevice.opened) await selectedDevice.open();
-  return selectedDevice;
+  return openVerifiedConfigDevice(await navigator.hid.getDevices());
 }
 
 export async function detectDevice(): Promise<HIDDevice | null> {
@@ -113,14 +124,9 @@ export async function detectDevice(): Promise<HIDDevice | null> {
     return null;
   }
 
-  // Shouldn't be necessary, but let's play it safe
-  const selectedDevice = devices.find(isBeefDevice);
+  const selectedDevice = await openVerifiedConfigDevice(devices);
   if (!selectedDevice) {
-    throw new Error('Invalid device found, is this an official Konami controller?');
-  }
-
-  if (!selectedDevice.opened) {
-    await selectedDevice.open();
+    throw new Error('No compatible BEEF BOARD configuration interface found');
   }
   return selectedDevice;
 }
