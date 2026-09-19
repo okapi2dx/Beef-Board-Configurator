@@ -25,23 +25,34 @@ process.on('unhandledRejection', error => {
 process.on('exit', code => startupLog(`process exit code=${code}`));
 
 let window;
+let activateWhenReady = false;
+
+function activateMainWindow() {
+  if (!window || window.isDestroyed()) {
+    activateWhenReady = true;
+    startupLog('window activation queued');
+    return;
+  }
+  activateWhenReady = false;
+  if (window.isMinimized()) window.restore();
+  window.show();
+  window.focus();
+  startupLog('window activated');
+}
+
 if (process.env.BEEF_TEST_USER_DATA) app.setPath('userData', process.env.BEEF_TEST_USER_DATA);
 const hasInstanceLock = process.env.BEEF_TEST_USER_DATA ? true : app.requestSingleInstanceLock();
 startupLog(`single-instance lock=${hasInstanceLock}`);
 if (!hasInstanceLock) {
-  app.whenReady().then(() => {
-    dialog.showErrorBox(
-      'Beef Board Configurator は既に起動しています',
-      '既存のウィンドウが表示されない場合は、タスク マネージャーで Beef Board Configurator を終了してから、もう一度起動してください。'
-    );
-    app.quit();
-  });
+  // The primary instance receives the second-instance event and is responsible
+  // for showing its window. Exit immediately so a portable secondary process
+  // never lingers while Electron is still becoming ready.
+  startupLog('secondary instance exiting');
+  app.quit();
 } else {
   app.on('second-instance', () => {
-    if (!window || window.isDestroyed()) return;
-    if (window.isMinimized()) window.restore();
-    window.show();
-    window.focus();
+    startupLog('second-instance received');
+    activateMainWindow();
   });
   app.whenReady().then(() => {
     startupLog('app ready');
@@ -140,9 +151,13 @@ async function start() {
     });
   }
   startupLog('creating BrowserWindow');
-  window = new BrowserWindow({ width: 980, height: 740, minWidth: 720, minHeight: 560,
+  window = new BrowserWindow({ width: 980, height: 740, minWidth: 720, minHeight: 560, show: false,
     title: `Beef Board Configurator ${formatDisplayVersion(app.getVersion())}`, autoHideMenuBar: true,
     webPreferences: { session: ses, preload: path.join(__dirname, 'preload.cjs'), nodeIntegration: false, contextIsolation: true, sandbox: true } });
+  window.once('ready-to-show', () => {
+    startupLog('window ready-to-show');
+    activateMainWindow();
+  });
   window.on('close', event => { if (flasher.busy) event.preventDefault(); });
   app.on('before-quit', event => { if (flasher.busy) event.preventDefault(); });
   window.removeMenu();
@@ -156,4 +171,8 @@ async function start() {
   startupLog('loading UI');
   await window.loadURL(ORIGIN + '/');
   startupLog('UI loaded');
+  // ready-to-show can be delayed or skipped on some Windows launch races.
+  // Ensure the first instance always becomes visible once the UI has loaded.
+  activateMainWindow();
+  if (activateWhenReady) activateMainWindow();
 }
