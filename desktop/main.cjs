@@ -42,6 +42,10 @@ async function start() {
     authorize(event);
     return flasher.flash(text => { if (!window.webContents.isDestroyed()) window.webContents.send('beef:flash-log', text); });
   });
+  ipcMain.handle('beef:restart-dfu', async event => {
+    authorize(event);
+    return flasher.restartDfu(text => { if (!window.webContents.isDestroyed()) window.webContents.send('beef:flash-log', text); });
+  });
   ipcMain.handle('beef:get-version', async event => {
     authorize(event);
     return app.getVersion();
