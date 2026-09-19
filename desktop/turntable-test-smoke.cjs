@@ -20,7 +20,7 @@ const assert = require('node:assert/strict');
     const errors=[];page.on('pageerror',e=>errors.push(String(e)));
     await page.addInitScript(()=>{
       localStorage.setItem('beef-language','ja');
-      const bytes=new Uint8Array(1025);bytes[0]=1;bytes[1]=27;bytes[5]=1;bytes[31]=2;bytes[79]=60;bytes[81]=24;bytes[85]=1;bytes[89]=100;
+      const bytes=new Uint8Array(1025);bytes[0]=1;bytes[1]=33;bytes[5]=1;bytes[31]=10;bytes[79]=60;bytes[81]=24;bytes[85]=1;bytes[89]=100;bytes[139]=16;for(let i=0;i<11;i++)bytes[128+i]=i;
       window.testRaw=0;window.sensorAB=0;window.reads=0;window.writes=[];window.failNextDiag=false;
       const device={productName:'BEEF BOARD',vendorId:0xfeed,productId:0,opened:true,collections:[{usagePage:0xffeb,usage:0x01}],close:async()=>{},
         receiveFeatureReport:async id=>{
