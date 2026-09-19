@@ -138,7 +138,7 @@
 					</button>
 					<button class:active={activeTab === Tab.Config && settingsSection === 'led'} class="sidebar-item" disabled={!appState.device || appState.disableConfigTab} onclick={() => { activeTab = Tab.Config; settingsSection = 'led'; }}>
 						<span class="nav-title">{tr('LED設定', 'LEDs')}</span>
-						<span class="nav-subtitle">{tr('ボタン・ターンテーブル・ライトバー', 'Buttons, turntable & bar')}</span>
+						<span class="nav-subtitle">{tr('ボタン・ターンテーブル・センターバー', 'Buttons, turntable & bar')}</span>
 					</button>
 					<button class:active={activeTab === Tab.Config && settingsSection === 'keys'} class="sidebar-item" disabled={!appState.device || appState.disableConfigTab} onclick={() => { activeTab = Tab.Config; settingsSection = 'keys'; }}>
 						<span class="nav-title">{tr('キー割り当て', 'Key Bindings')}</span>
