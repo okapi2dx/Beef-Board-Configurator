@@ -72,39 +72,17 @@ export class DfuDevice extends EventEmitter {
     return this._device;
   }
 
-  private static async open(device: USBDevice): Promise<DfuDevice> {
-    if (!device.opened) await device.open();
-    if (!device.configuration) await device.selectConfiguration(1);
-    await device.claimInterface(DFU_INTERFACE);
-    return new DfuDevice(device, DFU_INTERFACE);
-  }
-
-  static async authorize(): Promise<boolean> {
-    try {
-      await navigator.usb.requestDevice({
-        filters: [{ vendorId: DFU_VID_AT90USB1286, productId: DFU_PID_AT90USB1286 }]
-      });
-      return true;
-    } catch (err) {
-      if (err instanceof DOMException && err.name === 'NotFoundError') return false;
-      throw err;
-    }
-  }
-
-  static async connectAuthorized(): Promise<DfuDevice | null> {
-    const device = (await navigator.usb.getDevices()).find((candidate) =>
-      candidate.vendorId === DFU_VID_AT90USB1286 &&
-      candidate.productId === DFU_PID_AT90USB1286
-    );
-    return device ? DfuDevice.open(device) : null;
-  }
-
   static async connect(): Promise<DfuDevice | null> {
     try {
       const device = await navigator.usb.requestDevice({
         filters: [{ vendorId: DFU_VID_AT90USB1286, productId: DFU_PID_AT90USB1286 }]
       });
-      return DfuDevice.open(device);
+
+      await device.open();
+      await device.selectConfiguration(1);
+      await device.claimInterface(DFU_INTERFACE);
+
+      return new DfuDevice(device, DFU_INTERFACE);
     } catch (err) {
       if (err instanceof DOMException && err.name === 'NotFoundError') {
         return null;
@@ -234,11 +212,6 @@ export class DfuDevice extends EventEmitter {
     } catch (_) {
       // The bootloader normally disappears from USB while processing START_APP.
     }
-  }
-
-  async close(): Promise<void> {
-    try { await this._device.releaseInterface(this.interfaceNumber); } catch { /* Device may already be gone. */ }
-    try { await this._device.close(); } catch { /* START_APP may have disconnected it. */ }
   }
 }
 

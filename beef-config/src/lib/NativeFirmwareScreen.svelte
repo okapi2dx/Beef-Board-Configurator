@@ -4,7 +4,6 @@
   import * as AlertDialog from '$lib/components/ui/alert-dialog';
   import { appState, onDisconnect } from '$lib/types/state.svelte';
   import { Command, sendCommand, waitForReconnection } from '$lib/types/hid';
-  import { DfuDevice } from '$lib/types/dfu';
   import { tr } from '$lib/types/locale.svelte';
   import { formatDisplayVersion } from '$lib/types/version';
   let selected = $state<{ name: string; bytes: number; commitHash: string | null; version: string | null } | null>(null);
@@ -31,63 +30,25 @@
       appState.error = `${err}`;
     } finally { busy = false; appState.disableConfigTab = false; }
   }
-  async function waitForAuthorizedDfu(timeoutMs = 5000): Promise<DfuDevice | null> {
-    const deadline = Date.now() + timeoutMs;
-    while (Date.now() < deadline) {
-      try {
-        const dfu = await DfuDevice.connectAuthorized();
-        if (dfu) return dfu;
-      } catch {
-        // avrdude may still be releasing the DFU interface; retry briefly.
-      }
-      await new Promise(resolve => setTimeout(resolve, 250));
-    }
-    return null;
-  }
-
-  async function returnToNormalMode(): Promise<void> {
-    const dfu = await waitForAuthorizedDfu();
-    if (!dfu) throw new Error('DFUデバイスへ再接続できませんでした。');
-    try {
-      try {
-        await dfu.startApplication();
-      } catch {
-        // START_APP normally makes the DFU device disappear immediately.
-      }
-    } finally {
-      await dfu.close();
-    }
-
-    message = '通常モードのUSB再接続を待っています…';
-    await waitForReconnection(20000);
-  }
-
   async function flash() {
     confirmOpen = false;
     if (busy || !selected) return;
     busy = true; appState.disableConfigTab = true; log = ''; appState.error = undefined;
-    message = '書き込み準備中です。USBを抜かず、アプリを閉じないでください。';
-
-    let canAutoReturn = false;
+    message = '書き込み中です。USBを抜かず、アプリを閉じないでください。';
     try {
-      // Request DFU permission while this click still has user activation.
-      // The native avrdude process is used for flashing; WebUSB is only used
-      // afterwards to send Atmel START_APP and return to normal firmware.
-      try { canAutoReturn = await DfuDevice.authorize(); } catch { canAutoReturn = false; }
-
-      message = '書き込み中です。USBを抜かず、アプリを閉じないでください。';
       const result = await window.beefNative!.flashFirmware();
       if (!result.success) {
         message = `書き込みに失敗しました（終了コード: ${result.exitCode}）。下のログを確認してください。`;
         return;
       }
-
-      message = '書き込み・照合が完了しました。通常モードへ再起動しています…';
-      if (!canAutoReturn) {
-        throw new Error('DFUの自動再接続権限を取得できませんでした。');
+      if (!result.restartSuccess) {
+        message = '書き込み・照合は完了しましたが、通常モードの起動に失敗しました。';
+        appState.error = `START_APPに失敗しました（終了コード: ${result.restartExitCode ?? 'unknown'}）。`;
+        return;
       }
 
-      await returnToNormalMode();
+      message = '書き込み・照合が完了しました。通常モードのUSB再接続を待っています…';
+      await waitForReconnection(20000);
       message = '書き込みが完了し、通常モードへ自動再接続しました。';
     } catch (err) {
       if (message.startsWith('書き込み・照合が完了しました')) {

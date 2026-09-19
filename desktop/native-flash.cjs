@@ -70,6 +70,15 @@ function extractFirmwareInfo(text) {
   return { commitHash: null, version: null };
 }
 
+function runProcess(spawnProcess, executable, args, options, onLog) {
+  return new Promise((resolve, reject) => {
+    const child = spawnProcess(executable, args, options);
+    for (const stream of [child.stdout, child.stderr]) stream?.on('data', chunk => onLog(chunk.toString()));
+    child.once('error', reject);
+    child.once('close', code => resolve(code));
+  });
+}
+
 function createFlasher(toolDir, spawnProcess = spawn) {
   let selected, busy = false;
   return {
@@ -93,13 +102,21 @@ function createFlasher(toolDir, spawnProcess = spawn) {
         temporary = await fs.mkdtemp(path.join(os.tmpdir(), 'beef-flash-'));
         // Snapshot the validated file under a fixed name: user input never becomes a command argument.
         await fs.writeFile(path.join(temporary, 'firmware.hex'), selected.text, 'utf8');
-        const args = ['-C', path.join(toolDir, 'avrdude.conf'), '-c', 'flip1', '-p', 'usb1286', '-U', 'flash:w:firmware.hex:i'];
-        return await new Promise((resolve, reject) => {
-          const child = spawnProcess(path.join(toolDir, 'avrdude.exe'), args, { cwd: temporary, windowsHide: true, shell: false });
-          for (const stream of [child.stdout, child.stderr]) stream?.on('data', chunk => onLog(chunk.toString()));
-          child.once('error', reject);
-          child.once('close', code => resolve({ success: code === 0, exitCode: code }));
-        });
+        const executable = path.join(toolDir, 'avrdude.exe');
+        const options = { cwd: temporary, windowsHide: true, shell: false };
+        const writeArgs = ['-C', path.join(toolDir, 'avrdude.conf'), '-c', 'flip1', '-p', 'usb1286', '-U', 'flash:w:firmware.hex:i'];
+        const exitCode = await runProcess(spawnProcess, executable, writeArgs, options, onLog);
+        if (exitCode !== 0) return { success: false, exitCode, restartSuccess: false, restartExitCode: null };
+
+        onLog('\n[INFO] Starting normal application...\n');
+        const restartArgs = ['-C', path.join(toolDir, 'avrdude.conf'), '-c', 'flip1', '-p', 'usb1286', '-F', '-x', 'start_app'];
+        const restartExitCode = await runProcess(spawnProcess, executable, restartArgs, options, onLog);
+        return {
+          success: true,
+          exitCode,
+          restartSuccess: restartExitCode === 0,
+          restartExitCode
+        };
       } finally {
         busy = false;
         if (temporary) {
