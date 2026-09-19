@@ -269,44 +269,50 @@
 					<Switch label={tr('ターンテーブルとセンターバーの発光効果を連動', 'Link Turntable and Light Bar Effects')} bind:checked={config.link_bar_effect} />
 				{/if}
 				{@const ttModeMapping = Object.values(TurntableMode)}
-				<LightEffectSelect
-					label={tr('ターンテーブルの発光効果', 'Turntable Effect')}
-					bind:effect={config.tt_effect}
-					modeMapping={ttModeMapping}
-				/>
-				{#if config.tt_effect === TurntableMode.Static}
-					<ColorPicker bind:hsv={config.tt_static_hsv} />
-				{:else if config.tt_effect === TurntableMode.Spin}
-					<ColorPicker bind:hsv={config.tt_spin_hsv} />
-				{:else if config.tt_effect === TurntableMode.Shift}
-					<ColorPicker bind:hsv={config.tt_shift_hsv} />
-				{:else if config.tt_effect === TurntableMode.RainbowStatic}
-					<ColorPicker bind:hsv={config.tt_rainbow_static_hsv} />
-				{:else if config.tt_effect === TurntableMode.RainbowReactive}
-					<ColorPicker bind:hsv={config.tt_rainbow_react_hsv} />
-				{:else if config.tt_effect === TurntableMode.RainbowSpin}
-					<ColorPicker bind:hsv={config.tt_rainbow_spin_hsv} />
-				{:else if config.tt_effect === TurntableMode.Reactive}
-					<ColorPicker bind:hsv={config.tt_react_hsv} />
-				{:else if config.tt_effect === TurntableMode.Breathing}
-					<ColorPicker bind:hsv={config.tt_breathing_hsv} />
-				{/if}
+				<div class="grid gap-x-6 gap-y-2 md:grid-cols-2">
+					<div class="min-w-0">
+						<LightEffectSelect
+							label={tr('ターンテーブルの発光効果', 'Turntable Effect')}
+							bind:effect={config.tt_effect}
+							modeMapping={ttModeMapping}
+						/>
+						{#if config.tt_effect === TurntableMode.Static}
+							<ColorPicker bind:hsv={config.tt_static_hsv} />
+						{:else if config.tt_effect === TurntableMode.Spin}
+							<ColorPicker bind:hsv={config.tt_spin_hsv} />
+						{:else if config.tt_effect === TurntableMode.Shift}
+							<ColorPicker bind:hsv={config.tt_shift_hsv} />
+						{:else if config.tt_effect === TurntableMode.RainbowStatic}
+							<ColorPicker bind:hsv={config.tt_rainbow_static_hsv} />
+						{:else if config.tt_effect === TurntableMode.RainbowReactive}
+							<ColorPicker bind:hsv={config.tt_rainbow_react_hsv} />
+						{:else if config.tt_effect === TurntableMode.RainbowSpin}
+							<ColorPicker bind:hsv={config.tt_rainbow_spin_hsv} />
+						{:else if config.tt_effect === TurntableMode.Reactive}
+							<ColorPicker bind:hsv={config.tt_react_hsv} />
+						{:else if config.tt_effect === TurntableMode.Breathing}
+							<ColorPicker bind:hsv={config.tt_breathing_hsv} />
+						{/if}
+					</div>
 
-				{#if config.version >= 19 && config.link_bar_effect}
-					<p class="mb-4 text-sm">{tr('センターバーにターンテーブルと同じ発光効果と色を反映します。', 'The light bar follows the turntable effect and color.')}</p>
-				{:else}
-					{@const barModeMapping = config.version >= 17 ? Object.values(BarMode) : Object.values(BarMode).filter((mode) => mode !== BarMode.Static)}
-					<LightEffectSelect
-						label={tr('センターバーの発光効果', 'Light Bar Effect')}
-						bind:effect={config.bar_effect}
-						modeMapping={barModeMapping}
-					/>
-					{#if config.version >= 17 && config.bar_effect === BarMode.Static}
-						<ColorPicker bind:hsv={config.bar_static_hsv} />
-					{:else if config.version < 17}
-						<p class="mb-4 text-sm">{tr('センターバーの固定色を使うには、対応ファームウェアへ更新してください。', 'Update the firmware to use a static light bar color.')}</p>
-					{/if}
-				{/if}
+					<div class="min-w-0">
+						{#if config.version >= 19 && config.link_bar_effect}
+							<p class="mb-4 text-sm">{tr('センターバーにターンテーブルと同じ発光効果と色を反映します。', 'The light bar follows the turntable effect and color.')}</p>
+						{:else}
+							{@const barModeMapping = config.version >= 17 ? Object.values(BarMode) : Object.values(BarMode).filter((mode) => mode !== BarMode.Static)}
+							<LightEffectSelect
+								label={tr('センターバーの発光効果', 'Light Bar Effect')}
+								bind:effect={config.bar_effect}
+								modeMapping={barModeMapping}
+							/>
+							{#if config.version >= 17 && config.bar_effect === BarMode.Static}
+								<ColorPicker bind:hsv={config.bar_static_hsv} />
+							{:else if config.version < 17}
+								<p class="mb-4 text-sm">{tr('センターバーの固定色を使うには、対応ファームウェアへ更新してください。', 'Update the firmware to use a static light bar color.')}</p>
+							{/if}
+						{/if}
+					</div>
+				</div>
 
 				{#if config.version >= 16}
 					<Separator class="mb-4" />
@@ -336,14 +342,14 @@
 						/>
 					</div>
 
-					<div class="mb-4">
+					<div class="mb-4 flex items-center justify-between gap-4">
 						<ToolTipLabel forId="tt-leds" label={tr('ターンテーブルLED数', 'Turntable LEDs')}>
 							<p>{tr('ターンテーブルのRGB LED数を設定します。', 'Sets the number of RGB LEDs on the turntable.')}</p>
 							<p>{tr('実際に接続しているLED数に合わせてください。', 'Match this to the number of LEDs actually connected.')}</p>
 							<p>{tr('初期値は24。変更後は「再接続」が必要です。', 'The default is 24. Reconnect is required after changing it.')}</p>
 						</ToolTipLabel>
 						<Input
-							class="w-1/5"
+							class="w-24 shrink-0"
 							id="tt-leds"
 							min={1}
 							max={255}
@@ -353,14 +359,14 @@
 					</div>
 
 					{#if config.version >= 32}
-						<div class="mb-4">
+						<div class="mb-4 flex items-center justify-between gap-4">
 							<ToolTipLabel forId="bar-leds" label={tr('センターバーLED数', 'Center Bar LEDs')}>
 								<p>{tr('センターバーのRGB LED数を設定します。', 'Sets the number of RGB LEDs on the center bar.')}</p>
 								<p>{tr('実際に接続しているLED数に合わせてください。', 'Match this to the number of LEDs actually connected.')}</p>
 								<p>{tr('初期値は16。変更後は「再接続」が必要です。', 'The default is 16. Reconnect is required after changing it.')}</p>
 							</ToolTipLabel>
 							<Input
-								class="w-1/5"
+								class="w-24 shrink-0"
 								id="bar-leds"
 								min={1}
 								max={255}
