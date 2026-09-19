@@ -21,11 +21,12 @@
   :global(.help-text-body) {
     line-break: strict;
     word-break: normal;
-    overflow-wrap: break-word;
-    text-wrap: wrap;
+    overflow-wrap: normal;
+    text-wrap: nowrap;
   }
   :global(.help-text-body p) {
     margin: 0;
+    white-space: nowrap;
   }
   :global(.help-text-body p + p) {
     margin-top: 0.5rem;
