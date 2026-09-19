@@ -52,7 +52,13 @@ const beefHidFilters: HIDDeviceFilter[] = [
   { vendorId: 0x1ccf, productId: 0x8048, usagePage: 0xffeb, usage: 0x01 }  // IIDX Premium
 ];
 
+function hasConfigCollection(device: HIDDevice): boolean {
+  return device.collections.some((collection) =>
+    collection.usagePage === 0xffeb && collection.usage === 0x01);
+}
+
 function isBeefDevice(device: HIDDevice): boolean {
+  if (!hasConfigCollection(device)) return false;
   if (device.vendorId === 0xfeed && device.productId === 0x0000) return device.productName === 'BEEF BOARD';
   if (device.vendorId !== 0x1ccf) return false;
   if (device.productId === 0x1018) return entryProductNames.has(device.productName);
