@@ -1,5 +1,5 @@
 name: One-shot Turntable A-B Portable Build
-# rerun after config-version fix
+# rerun after focused smoke test
 
 on:
   push:
