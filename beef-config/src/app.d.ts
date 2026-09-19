@@ -4,7 +4,12 @@ declare global {
 	interface Window {
 		beefNative?: {
 			selectFirmware(): Promise<{ name: string; bytes: number; commitHash: string | null; version: string | null } | null>;
-			flashFirmware(): Promise<{ success: boolean; exitCode: number | null }>;
+			flashFirmware(): Promise<{
+				success: boolean;
+				exitCode: number | null;
+				restartSuccess: boolean;
+				restartExitCode: number | null;
+			}>;
 			getVersion(): Promise<string>;
 			checkForUpdates(): Promise<{
 				currentVersion: string;
