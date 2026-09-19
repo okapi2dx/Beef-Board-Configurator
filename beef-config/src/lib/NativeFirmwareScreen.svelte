@@ -24,6 +24,7 @@
     try {
       await sendCommand(Command.Bootloader);
       await onDisconnect();
+      appState.dfuReconnectAvailable = true;
       message = '書き込みモードに切り替えました。数秒待って「書き込み開始」を押してください。';
     } catch (err) {
       navigator.hid.addEventListener('disconnect', onDisconnect);
@@ -34,6 +35,7 @@
     confirmOpen = false;
     if (busy || !selected) return;
     busy = true; appState.disableConfigTab = true; log = ''; appState.error = undefined;
+    appState.dfuReconnectAvailable = true;
     message = '書き込み中です。USBを抜かず、アプリを閉じないでください。';
     try {
       const result = await window.beefNative!.flashFirmware();
@@ -49,6 +51,7 @@
 
       message = '書き込み・照合が完了しました。通常モードのUSB再接続を待っています…';
       await waitForReconnection(20000);
+      appState.dfuReconnectAvailable = false;
       message = '書き込みが完了し、通常モードへ自動再接続しました。';
     } catch (err) {
       if (message.startsWith('書き込み・照合が完了しました')) {
