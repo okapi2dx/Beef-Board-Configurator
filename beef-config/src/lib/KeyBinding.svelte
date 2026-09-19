@@ -250,7 +250,7 @@
 		font-size: 1rem !important;
 	}
 	.remap-stage {
-		width: min(100%, 432px);
+		width: min(100%, 480px);
 		box-sizing: border-box;
 		margin: 0 auto;
 		background: #0f172a;
@@ -261,7 +261,7 @@
 	.remap-keyboard {
 		position: relative;
 		width: 100%;
-		max-width: 406px;
+		max-width: 454px;
 		aspect-ratio: 310 / 260;
 		margin: 0 auto;
 		background: linear-gradient(145deg, #e8edf2, #c4ced8);
@@ -334,12 +334,12 @@
 		opacity: 0.72;
 	}
 	:global(.remap-select) {
-		height: 24px !important;
-		min-height: 24px !important;
-		width: 46px !important;
+		height: 26px !important;
+		min-height: 26px !important;
+		width: 50px !important;
 		padding: 0 5px !important;
 		gap: 2px !important;
-		font-size: 11.5px !important;
+		font-size: 12px !important;
 		font-weight: 800 !important;
 		line-height: 1 !important;
 		background: #fff !important;
@@ -359,7 +359,7 @@
 		}
 		.remap-keyboard {
 			width: 100%;
-			max-width: 390px;
+			max-width: 430px;
 		}
 		.remap-key {
 			width: 15%;
