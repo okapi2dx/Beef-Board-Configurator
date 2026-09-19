@@ -6,7 +6,9 @@ const assert = require('node:assert/strict');
 (async () => {
   const root = path.resolve('../beef-config/build');
   const server = http.createServer((req,res) => {
-    const file=path.join(root,req.url==='/'?'index.html':req.url.split('?')[0]);
+    const requestPath=req.url.split('?')[0];
+    const entry=fs.existsSync(path.join(root,'index.html'))?'index.html':'404.html';
+    const file=path.join(root,requestPath==='/'?entry:requestPath);
     if(!file.startsWith(root+path.sep)||!fs.existsSync(file)){res.writeHead(404);res.end();return;}
     res.setHeader('Content-Type',file.endsWith('.js')?'application/javascript':file.endsWith('.css')?'text/css':'text/html');res.end(fs.readFileSync(file));
   });
