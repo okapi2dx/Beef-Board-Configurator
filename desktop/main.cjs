@@ -1,14 +1,33 @@
 const { app, BrowserWindow, session, dialog, shell, net, ipcMain } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs');
+const os = require('node:os');
 const { pathToFileURL } = require('node:url');
 const { ORIGIN, trusted, allowedDevice } = require('./policy.cjs');
 const { createFlasher } = require('./native-flash.cjs');
 const { checkForUpdate } = require('./update-check.cjs');
 
+const startupLogPath = path.join(os.tmpdir(), 'Beef Board Configurator-startup.log');
+function startupLog(message) {
+  try {
+    fs.appendFileSync(startupLogPath, `[${new Date().toISOString()}] ${message}\n`, 'utf8');
+  } catch { /* Logging must never block startup. */ }
+}
+startupLog(`process start pid=${process.pid} packaged=${app.isPackaged} exec=${process.execPath}`);
+process.on('uncaughtException', error => {
+  startupLog(`uncaughtException: ${error?.stack || error}`);
+  try { dialog.showErrorBox('起動エラー', String(error)); } catch { /* best effort */ }
+  app.quit();
+});
+process.on('unhandledRejection', error => {
+  startupLog(`unhandledRejection: ${error?.stack || error}`);
+});
+process.on('exit', code => startupLog(`process exit code=${code}`));
+
 let window;
 if (process.env.BEEF_TEST_USER_DATA) app.setPath('userData', process.env.BEEF_TEST_USER_DATA);
 const hasInstanceLock = process.env.BEEF_TEST_USER_DATA ? true : app.requestSingleInstanceLock();
+startupLog(`single-instance lock=${hasInstanceLock}`);
 if (!hasInstanceLock) {
   app.whenReady().then(() => {
     dialog.showErrorBox(
@@ -24,7 +43,11 @@ if (!hasInstanceLock) {
     window.show();
     window.focus();
   });
-  app.whenReady().then(start).catch(error => {
+  app.whenReady().then(() => {
+    startupLog('app ready');
+    return start();
+  }).then(() => startupLog('start completed')).catch(error => {
+    startupLog(`startup failure: ${error?.stack || error}`);
     dialog.showErrorBox('起動エラー', String(error));
     app.quit();
   });
@@ -40,6 +63,7 @@ function formatDisplayVersion(version) {
 }
 
 async function start() {
+  startupLog('start entered');
   const flasher = createFlasher(app.isPackaged ? path.join(process.resourcesPath, 'avrdude') : path.join(__dirname, '../beef-tool/avrdude'));
   const authorize = event => {
     if (event.sender !== window?.webContents || event.senderFrame !== window.webContents.mainFrame || !trusted(event.senderFrame.url)) throw new Error('Unauthorized');
@@ -115,6 +139,7 @@ async function start() {
       } catch { callback(''); }
     });
   }
+  startupLog('creating BrowserWindow');
   window = new BrowserWindow({ width: 980, height: 740, minWidth: 720, minHeight: 560,
     title: `Beef Board Configurator ${formatDisplayVersion(app.getVersion())}`, autoHideMenuBar: true,
     webPreferences: { session: ses, preload: path.join(__dirname, 'preload.cjs'), nodeIntegration: false, contextIsolation: true, sandbox: true } });
@@ -128,5 +153,7 @@ async function start() {
     // Honor the firmware screen's close guard; never force-close a flashing session.
     void dialog.showMessageBox(window, { type: 'warning', message: '書き込み中です。完了するまでアプリを閉じないでください。' });
   });
+  startupLog('loading UI');
   await window.loadURL(ORIGIN + '/');
+  startupLog('UI loaded');
 }
