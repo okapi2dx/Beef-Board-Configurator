@@ -70,6 +70,16 @@ BEEF BOARDとUSB接続し、アプリから直接設定を読み込み・変更�
   - 日本語 / English切り替え
   - ライト / ダークテーマ対応
 
+### スクリーンショット
+
+| 入力設定 | LED設定 |
+| --- | --- |
+| ![入力設定](docs/screenshots/01-input-settings.png) | ![LED設定](docs/screenshots/02-led-settings.png) |
+
+| キー割り当て | コントローラーモニター |
+| --- | --- |
+| ![キー割り当て](docs/screenshots/03-key-mapping.png) | ![コントローラーモニター](docs/screenshots/04-controller-monitor.png) |
+
 設定変更はBEEF BOARDへ送信され、対応する設定は基板側のEEPROMへ保存されるため、PCやアプリを終了した後も設定を保持できます。
 
 ---
