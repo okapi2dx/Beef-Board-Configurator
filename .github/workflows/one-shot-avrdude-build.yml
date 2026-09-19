@@ -24,9 +24,9 @@ jobs:
         shell: pwsh
         run: git clone --branch v7.1-windows --depth 1 https://github.com/mariusgreuel/avrdude avrdude-src
 
-      - name: Apply BEEF START_APP patch
+      - name: Apply BEEF START_APP source
         shell: pwsh
-        run: git -C avrdude-src apply ../beef-tool/avrdude/flip1-start-app.patch
+        run: Copy-Item "beef-tool\\avrdude\\flip1-start-app.c" "avrdude-src\\src\\flip1.c" -Force
 
       - name: Install winflexbison
         shell: pwsh
