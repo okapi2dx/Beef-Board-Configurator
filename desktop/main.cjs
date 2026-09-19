@@ -9,9 +9,21 @@ const { checkForUpdate } = require('./update-check.cjs');
 let window;
 if (process.env.BEEF_TEST_USER_DATA) app.setPath('userData', process.env.BEEF_TEST_USER_DATA);
 const hasInstanceLock = process.env.BEEF_TEST_USER_DATA ? true : app.requestSingleInstanceLock();
-if (!hasInstanceLock) app.quit();
-else {
-  app.on('second-instance', () => { if (window) { window.restore(); window.focus(); } });
+if (!hasInstanceLock) {
+  app.whenReady().then(() => {
+    dialog.showErrorBox(
+      'Beef Board Configurator は既に起動しています',
+      '既存のウィンドウが表示されない場合は、タスク マネージャーで Beef Board Configurator を終了してから、もう一度起動してください。'
+    );
+    app.quit();
+  });
+} else {
+  app.on('second-instance', () => {
+    if (!window || window.isDestroyed()) return;
+    if (window.isMinimized()) window.restore();
+    window.show();
+    window.focus();
+  });
   app.whenReady().then(start).catch(error => {
     dialog.showErrorBox('起動エラー', String(error));
     app.quit();
