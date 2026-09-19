@@ -94,6 +94,19 @@ function createFlasher(toolDir, spawnProcess = spawn) {
       selected = { text, name: path.basename(file), bytes };
       return { name: selected.name, bytes, ...firmwareInfo };
     },
+    async restartDfu(onLog) {
+      if (busy) throw new Error('処理中です。');
+      busy = true;
+      try {
+        const executable = path.join(toolDir, 'avrdude.exe');
+        const options = { windowsHide: true, shell: false };
+        const restartArgs = ['-C', path.join(toolDir, 'avrdude.conf'), '-c', 'flip1', '-p', 'usb1286', '-F', '-x', 'start_app'];
+        const exitCode = await runProcess(spawnProcess, executable, restartArgs, options, onLog);
+        return { success: exitCode === 0, exitCode };
+      } finally {
+        busy = false;
+      }
+    },
     async flash(onLog) {
       if (busy || !selected) throw new Error('書き込み中、またはファイル未選択です。');
       busy = true;
