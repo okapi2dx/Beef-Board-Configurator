@@ -136,6 +136,7 @@
 					<h3 class="text-xl font-bold">{tr('ボタン配置入れ替え', 'Button Layout Remapping')}</h3>
 					<HelpText label={tr('ボタン配置入れ替え', 'Button Layout Remapping')}>
 						<p>{tr('各ボタンの入力先を変更できます。', 'Changes the input destination for each button.')}</p>
+						<p>{tr('プルダウンから割り当て先を選択します。', 'Select the destination from the drop-down menu.')}</p>
 						<p>{tr('同じ入力先を複数のボタンに設定できます。', 'Multiple buttons can use the same destination.')}</p>
 					</HelpText>
 				</div>
