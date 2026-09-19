@@ -15,7 +15,7 @@
 	import { formatDisplayVersion } from '$lib/types/version';
 	import { Command, readFirmwareInfo, sendCommand, waitForReconnection, type FirmwareInfo } from '$lib/types/hid';
 
-	import { connectDevice, reconnectDevice, appState } from '$lib/types/state.svelte';
+	import { connectDevice, reconnectDevice, reconnectDfuDevice, appState } from '$lib/types/state.svelte';
 
 	const Tab = {
 		Config: 'config',
@@ -78,12 +78,12 @@
 			<Button
 				variant="outline"
 				class="reset-action-button"
-				onclick={() => appState.device ? reconnectDevice() : connectDevice()}
+				onclick={() => appState.device ? reconnectDevice() : (nativeFlash && activeTab === Tab.Firmware ? reconnectDfuDevice() : connectDevice())}
 				disabled={appState.disableConfigTab || appState.connecting}
 			>
 				{#if appState.connecting}
 					{tr('接続中…', 'Connecting…')}
-				{:else if appState.device}
+				{:else if appState.device || (nativeFlash && activeTab === Tab.Firmware)}
 					{tr('再接続', 'Reconnect')}
 				{:else}
 					{tr('接続', 'Connect')}
