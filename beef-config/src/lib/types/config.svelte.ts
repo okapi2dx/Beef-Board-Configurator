@@ -93,6 +93,7 @@ export class Config {
   led_refresh = $state(0);
   rainbow_spin_speed = $state(1);
   tt_leds = $state(0);
+  bar_leds = $state(16);
   bar_static_hsv = $state(new Hsv(0, 255, 255));
   link_bar_effect = $state(false);
   digital_tt = $state(false);
@@ -237,6 +238,9 @@ export class Config {
     }
     if (this.version >= 28) {
       this.button_mapping = Array.from({ length: 11 }, () => configData.getUint8(offset++));
+    }
+    if (this.version >= 32) {
+      this.bar_leds = configData.getUint8(offset++);
     }
   }
 }
@@ -419,6 +423,11 @@ export async function updateConfig(config: Config): Promise<void> {
           config.button_mapping.some((v) => !Number.isInteger(v) || v < 0 || v >= 11))
         throw new Error('Button mapping entries must be valid button indices');
       for (const value of config.button_mapping) configView.setUint8(offset++, value);
+    }
+    if (config.version >= 32) {
+      if (!Number.isInteger(config.bar_leds) || config.bar_leds < 1 || config.bar_leds > 255)
+        throw new Error('Center bar LED count must be 1–255');
+      configView.setUint8(offset++, config.bar_leds);
     }
     // WebHID feature reports must match the report length advertised by the
     // connected firmware. `configBuffer` is intentionally oversized while we
