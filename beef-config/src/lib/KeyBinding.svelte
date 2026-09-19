@@ -135,7 +135,8 @@
 				<div class="remap-heading">
 					<h3 class="text-xl font-bold">{tr('ボタン配置入れ替え', 'Button Layout Remapping')}</h3>
 					<HelpText label={tr('ボタン配置入れ替え', 'Button Layout Remapping')}>
-						{tr('物理ボタンを別の論理ボタンとして動作させます。同じ論理ボタンへの重複割り当ても可能です。', 'Map each physical button to a logical button. Multiple physical buttons may share the same logical button.')}
+						<p>{tr('各物理ボタン（B1～B7、E1～E4）を、どの論理ボタンとして入力するか変更できます。', 'Choose which logical button each physical button (B1-B7, E1-E4) should send.')}</p>
+						<p>{tr('各ボタン内のプルダウンから割り当て先を選択します。複数の物理ボタンに同じ割り当て先を設定することもできます。', 'Select the destination from the drop-down inside each button. Multiple physical buttons may share the same destination.')}</p>
 					</HelpText>
 				</div>
 				<div class="remap-stage">
