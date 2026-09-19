@@ -85,10 +85,10 @@
 </script>
 
 {#if config}
-	{#if config.version < 22}
+	{#if config.version < 33}
 		<WarningAlert
 			title={tr('ファームウェアが古いです', 'Outdated Firmware')}
-			description={tr('時間式デッドゾーンを使うには、最新のファームウェアへ更新してください。', 'Update the firmware to use the time-based deadzone.')}
+			description={tr('角度式デッドゾーンを使うには、最新のファームウェアへ更新してください。', 'Update the firmware to use the angle-based deadzone.')}
 		/>
 	{/if}
 
@@ -148,13 +148,29 @@
 				{/if}
 			{/if}
 			<div class="mb-4">
-				<ToolTipLabel forId="tt-deadzone" label={config.version >= 22 ? tr('ターンテーブルのデッドゾーン（ms）', 'Turntable Deadzone (ms)') : tr('ターンテーブルのデッドゾーン', 'Turntable Deadzone')}
-					>
+				<ToolTipLabel
+					forId="tt-deadzone"
+					label={config.version >= 33
+						? tr('ターンテーブル デッドゾーン（°）', 'Turntable Deadzone (°)')
+						: config.version >= 22
+							? tr('ターンテーブル デッドゾーン（ms）', 'Turntable Deadzone (ms)')
+							: tr('ターンテーブル デッドゾーン', 'Turntable Deadzone')}
+				>
+					{#if config.version >= 33}
+						<p>{tr('X軸の回転量を角度で判定します。', 'Uses the X-axis rotation angle for the deadzone.')}</p>
+						<p>{tr('設定角度に達するまで入力を無視します。', 'Input is ignored until the configured angle is reached.')}</p>
+						<p>{tr('0°で無効になり、すぐに入力します。', 'Set 0° to disable it and accept input immediately.')}</p>
+					{:else}
 						<p>{tr('短い回転や誤入力を無視する時間です。', 'Ignores brief turntable movement and false input.')}</p>
 						<p>{tr('0msで無効になります。', 'Set 0 ms to disable it.')}</p>
-					</ToolTipLabel
-				>
-				<SliderInput bind:value={config.tt_deadzone} min={config.version >= 22 ? 0 : 1} max={config.version >= 22 ? 255 : 6} id="tt-deadzone" />
+					{/if}
+				</ToolTipLabel>
+				<SliderInput
+					bind:value={config.tt_deadzone}
+					min={config.version >= 22 ? 0 : 1}
+					max={config.version >= 33 ? 30 : config.version >= 22 ? 255 : 6}
+					id="tt-deadzone"
+				/>
 			</div>
 
 			{#if config.version >= 12}
