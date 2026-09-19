@@ -39,7 +39,7 @@
 enum {
   MAGIC = 0xBEEF,
 
-  DEADZONE_MAX = 255,
+  DEADZONE_MAX = 30,
   DEADZONE_MIN = 0,
 
   RATIO_MAX = 10,
@@ -295,6 +295,11 @@ void config_update(config* self) {
     case 31:
       // Configurable physical center-bar LED count.
       self->bar_leds = 16;
+      self->version++;
+    case 32:
+      // Replace the v22-v32 time-based deadzone with an X-axis angle
+      // threshold. A duration cannot be converted safely to an angle.
+      self->tt_deadzone = 0;
       self->version++;
     default: break;
   }
