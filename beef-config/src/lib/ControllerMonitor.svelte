@@ -186,7 +186,7 @@
 						>
 					</div>
 					<div class="status-row">
-						<span>{tr('ライトバー', 'Light bar')}</span><b data-testid="monitor-bar-effect"
+						<span>{tr('センターバー', 'Light bar')}</span><b data-testid="monitor-bar-effect"
 							>{effectLabel(config.link_bar_effect ? config.tt_effect : config.bar_effect)}</b
 						>
 					</div>
@@ -221,7 +221,7 @@
 				<div
 					class="bar"
 					aria-label={tr(
-						'ライトバー：16個のLEDをグラデーション表示',
+						'センターバー：16個のLEDをグラデーション表示',
 						'Light bar: gradient from 16 LEDs'
 					)}
 					data-top-rgb={barRgbAt(0)}
