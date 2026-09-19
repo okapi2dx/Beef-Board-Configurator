@@ -221,8 +221,8 @@
 				<div
 					class="bar"
 					aria-label={tr(
-						'センターバー：16個のLEDをグラデーション表示',
-						'Light bar: gradient from 16 LEDs'
+						'センターバー：LEDの発光状態をグラデーション表示',
+						'Center bar: LED lighting shown as a gradient'
 					)}
 					data-top-rgb={barRgbAt(0)}
 					data-bottom-rgb={barRgbAt(15)}
