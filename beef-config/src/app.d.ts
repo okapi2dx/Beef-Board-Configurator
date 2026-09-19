@@ -10,6 +10,7 @@ declare global {
 				restartSuccess: boolean;
 				restartExitCode: number | null;
 			}>;
+			restartDfu(): Promise<{ success: boolean; exitCode: number | null }>;
 			getVersion(): Promise<string>;
 			checkForUpdates(): Promise<{
 				currentVersion: string;
