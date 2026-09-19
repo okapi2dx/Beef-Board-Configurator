@@ -1,4 +1,4 @@
-import { detectAuthorizedDevice, detectDevice } from "$lib/types/hid";
+import { Command, detectDevice, sendCommand, waitForReconnection } from "$lib/types/hid";
 
 class AppState {
   disableConfigTab = $state(false);
@@ -39,20 +39,18 @@ export async function connectDevice(): Promise<void> {
 
 export async function reconnectDevice(): Promise<void> {
   if (appState.connecting) return;
+  if (!appState.device) {
+    await connectDevice();
+    return;
+  }
+
   appState.connecting = true;
+  appState.error = undefined;
   try {
-    navigator.hid.removeEventListener('disconnect', onDisconnect);
-    const previous = appState.device;
-    appState.device = null;
-    try { await previous?.close(); } catch { /* Re-open below or show the chooser. */ }
-
-    const authorized = await detectAuthorizedDevice();
-    if (authorized) {
-      await finishConnection(authorized);
-      return;
-    }
-
-    await finishConnection(await detectDevice());
+    // Ask the controller firmware to restart its USB device, then wait for
+    // Windows/Chromium to enumerate the BEEF BOARD again and reconnect.
+    await sendCommand(Command.Restart);
+    await waitForReconnection();
   } catch (err) {
     await onDisconnect();
     appState.error = `Error communicating with device: ${err}`;
