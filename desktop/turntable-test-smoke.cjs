@@ -66,6 +66,17 @@ const assert = require('node:assert/strict');
       await page.waitForFunction(v => { const w=window.writes.filter(x=>x.id===1).at(-1); return w && w.data[75]===v && w.data[76]===v; }, debounce);
     }
     assert.equal(await page.locator('input#tt-ratio').getAttribute('max'),'10');
+    await page.getByRole('button',{name:'ターンテーブル感度の説明',exact:true}).hover();
+    const sensitivityTip=page.locator('[data-slot="tooltip-content"]');
+    await sensitivityTip.waitFor({state:'visible'});
+    for (const line of [
+      'ターンテーブルの回転に対する入力量を調整します。',
+      '感度10では1カウントで入力、感度5では2カウントで入力されます。',
+      '感度1では10カウントで入力されます。'
+    ]) assert.equal(await sensitivityTip.getByText(line,{exact:true}).count(),1);
+    await page.mouse.move(1200,600,{steps:10});
+    await sensitivityTip.waitFor({state:'hidden'});
+
 
     await page.locator('input#tt-ratio').fill('10');
     await page.waitForFunction(()=>window.writes.some(x=>x.id===1&&x.data[30]===10));
