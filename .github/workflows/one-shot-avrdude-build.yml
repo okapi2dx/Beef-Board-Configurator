@@ -1,0 +1,75 @@
+name: One-shot Build Patched AVRDUDE
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/one-shot-avrdude-build.yml
+
+permissions:
+  contents: write
+
+env:
+  BUILD_TYPE: RelWithDebInfo
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Clone AVRDUDE 7.1 Windows source
+        shell: pwsh
+        run: git clone --branch v7.1-windows --depth 1 https://github.com/mariusgreuel/avrdude avrdude-src
+
+      - name: Apply BEEF START_APP patch
+        shell: pwsh
+        run: git -C avrdude-src apply ../beef-tool/avrdude/flip1-start-app.patch
+
+      - name: Install winflexbison
+        shell: pwsh
+        run: |
+          curl.exe -L https://github.com/lexxmark/winflexbison/releases/download/v2.5.24/win_flex_bison-2.5.24.zip -o winflexbison.zip
+          Expand-Archive winflexbison.zip -DestinationPath "$env:GITHUB_WORKSPACE\winflexbison"
+          "$env:GITHUB_WORKSPACE\winflexbison" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Configure AVRDUDE
+        working-directory: avrdude-src
+        shell: pwsh
+        run: >
+          cmake
+          -A x64
+          -D DEBUG_CMAKE=1
+          -D CMAKE_SYSTEM_VERSION=11
+          -D CMAKE_C_FLAGS_RELWITHDEBINFO="/MT /GL /Zi /O2 /Ob1 /DNDEBUG"
+          -D CMAKE_CXX_FLAGS_RELWITHDEBINFO="/MT /GL /Zi /O2 /Ob1 /DNDEBUG"
+          -D CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO="/DEBUG /INCREMENTAL:NO /LTCG /OPT:REF /OPT:ICF"
+          -D HAVE_LIBREADLINE=HAVE_LIBREADLINE-NOTFOUND
+          -D CMAKE_BUILD_TYPE=$env:BUILD_TYPE
+          -D USE_EXTERNAL_LIBS=1
+          -B build
+
+      - name: Build AVRDUDE
+        working-directory: avrdude-src
+        shell: pwsh
+        run: cmake --build build --config $env:BUILD_TYPE
+
+      - name: Replace bundled AVRDUDE
+        shell: pwsh
+        run: |
+          $built = "avrdude-src\build\src\RelWithDebInfo\avrdude.exe"
+          if (-not (Test-Path $built)) { throw "Patched avrdude.exe not found" }
+          Copy-Item $built "beef-tool\avrdude\avrdude.exe" -Force
+          & .\beef-tool\avrdude\avrdude.exe -?
+
+      - name: Commit patched AVRDUDE
+        shell: pwsh
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add beef-tool/avrdude/avrdude.exe
+          if (git diff --cached --quiet) { throw "Patched AVRDUDE binary did not change" }
+          git commit -m "Use AVRDUDE with DFU start-app support"
+          git push origin HEAD:main
