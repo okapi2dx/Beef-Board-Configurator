@@ -42,6 +42,29 @@ export async function connectDevice(): Promise<void> {
   }
 }
 
+export async function reconnectDfuDevice(): Promise<void> {
+  if (appState.connecting) return;
+  if (!window.beefNative) {
+    await connectDevice();
+    return;
+  }
+
+  appState.connecting = true;
+  appState.error = undefined;
+  try {
+    const result = await window.beefNative.restartDfu();
+    if (!result.success) {
+      throw new Error(`DFUデバイスを通常モードへ切り替えられませんでした（終了コード: ${result.exitCode ?? 'unknown'}）`);
+    }
+    await waitForReconnection(20000);
+  } catch (err) {
+    await onDisconnect();
+    appState.error = `Error communicating with device: ${err}`;
+  } finally {
+    appState.connecting = false;
+  }
+}
+
 export async function reconnectDevice(): Promise<void> {
   if (appState.connecting) return;
   if (!appState.device) {
