@@ -111,6 +111,8 @@ struct config {
   uint16_t button_led_fade_ms_extended;
   // Physical button index -> logical IIDX button index (B1-B7, E1-E4).
   uint8_t button_mapping[BUTTONS];
+  // Physical RGB LED count connected to the center bar.
+  uint8_t bar_leds;
 };
 
 struct callback {
