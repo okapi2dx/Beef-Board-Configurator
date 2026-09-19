@@ -196,7 +196,11 @@
 				</div>
 			{/if}
 			<div class="mb-4">
-				<Label for="tt-ratio">{tr('ターンテーブル感度', 'Turntable Sensitivity')}</Label>
+				<ToolTipLabel forId="tt-ratio" label={tr('ターンテーブル感度', 'Turntable Sensitivity')}>
+					<p>{tr('ターンテーブルの回転に対する入力量を調整します。', 'Adjusts how much input is produced by turntable rotation.')}</p>
+					<p>{tr('感度10では1カウントで入力、感度5では2カウントで入力されます。', 'Sensitivity 10 inputs every 1 count; sensitivity 5 inputs every 2 counts.')}</p>
+					<p>{tr('感度1では10カウントで入力されます。', 'Sensitivity 1 inputs every 10 counts.')}</p>
+				</ToolTipLabel>
 				<SliderInput bind:value={config.tt_ratio} min={1} max={config.version >= 26 ? 10 : 6} id="tt-ratio" />
 			</div>
 			<TurntableTest
