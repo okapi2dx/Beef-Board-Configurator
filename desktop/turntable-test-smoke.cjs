@@ -31,7 +31,7 @@ const assert = require('node:assert/strict');
       if(!navigator.usb)Object.defineProperty(navigator,'usb',{value:{}});
     });
     await page.goto(`http://127.0.0.1:${server.address().port}`);
-    await page.getByRole('button',{name:'接続 / Connect Device'}).click();
+    await page.getByRole('button',{name:'接続',exact:true}).click();
     const meter=page.getByRole('meter');
     const help=page.getByRole('button',{name:'ターンテーブル保持時間（ms）の説明',exact:true});
     await help.hover();
