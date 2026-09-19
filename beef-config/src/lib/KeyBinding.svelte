@@ -85,20 +85,20 @@
 		config.button_mapping = next;
 	}
 
-	// Compact IIDX-style layout. B1-B7 are tall keys and E1-E4 are square.
-	// Coordinates use a 310 x 205 design space so the whole panel stays short.
+	// Keep the remap layout aligned with ControllerMonitor exactly.
+	// B1/B3/B5/B7 are the lower row; B2/B4/B6 are the upper row.
 	const IIDX_REMAP_POSITIONS = [
-		[20, 110],
-		[60, 76],
-		[100, 110],
-		[140, 76],
-		[180, 110],
-		[220, 76],
-		[260, 110],
-		[40, 12],
-		[110, 12],
-		[180, 12],
-		[250, 12]
+		[45, 175],
+		[75, 105],
+		[105, 175],
+		[135, 105],
+		[165, 175],
+		[195, 105],
+		[225, 175],
+		[45, 15],
+		[105, 15],
+		[165, 15],
+		[225, 15]
 	];
 
 </script>
@@ -147,7 +147,7 @@
 								class:function-key={i >= 7}
 								class:changed={config.button_mapping[i] !== i}
 								style:left={`${(IIDX_REMAP_POSITIONS[i][0] / 310) * 100}%`}
-								style:top={`${(IIDX_REMAP_POSITIONS[i][1] / 205) * 100}%`}
+								style:top={`${(IIDX_REMAP_POSITIONS[i][1] / 260) * 100}%`}
 							>
 								<strong>{physicalLabel}</strong>
 								<span class="remap-arrow">↓</span>
@@ -250,7 +250,7 @@
 		font-size: 1rem !important;
 	}
 	.remap-stage {
-		width: min(100%, 456px);
+		width: min(100%, 432px);
 		box-sizing: border-box;
 		margin: 0 auto;
 		background: #0f172a;
@@ -261,8 +261,8 @@
 	.remap-keyboard {
 		position: relative;
 		width: 100%;
-		max-width: 430px;
-		aspect-ratio: 310 / 205;
+		max-width: 406px;
+		aspect-ratio: 310 / 260;
 		margin: 0 auto;
 		background: linear-gradient(145deg, #e8edf2, #c4ced8);
 		border: 2px solid #718094;
@@ -273,8 +273,8 @@
 	}
 	.remap-key {
 		position: absolute;
-		width: 12.5%;
-		height: 34%;
+		width: 15%;
+		height: 22%;
 		border: 2px solid #7b8797;
 		border-radius: 7px;
 		background: #edf1f6;
@@ -359,13 +359,13 @@
 		}
 		.remap-keyboard {
 			width: 100%;
-			max-width: 410px;
+			max-width: 390px;
 		}
 		.remap-key {
-			width: 13%;
+			width: 15%;
 		}
 		.remap-key.function-key {
-			width: 14.5%;
+			width: 14%;
 		}
 	}
 </style>
