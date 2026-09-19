@@ -252,30 +252,31 @@
 		line-height: 1.3;
 	}
 	.remap-stage {
-		width: fit-content;
-		max-width: 100%;
+		width: min(100%, 486px);
+		box-sizing: border-box;
 		margin: 0 auto;
 		background: #0f172a;
 		border-radius: 10px;
-		padding: 8px 10px 10px;
+		padding: 8px 12px 10px;
 		color: #e2e8f0;
-		min-width: 0;
 	}
 	.remap-keyboard {
 		position: relative;
-		width: min(100%, 460px);
+		width: 100%;
+		max-width: 460px;
 		aspect-ratio: 310 / 260;
 		margin: 0 auto;
-		padding: 1.25%;
 		background: linear-gradient(145deg, #e8edf2, #c4ced8);
 		border: 2px solid #718094;
 		border-radius: 10px;
+		box-sizing: border-box;
 		box-shadow: inset 0 0 0 1px #f8fafc, 0 6px 16px rgba(2, 6, 23, 0.2);
+		overflow: hidden;
 	}
 	.remap-key {
 		position: absolute;
-		width: 16.5%;
-		height: 21%;
+		width: 17%;
+		height: 22%;
 		border: 2px solid #7b8797;
 		border-radius: 7px;
 		background: #edf1f6;
@@ -298,7 +299,7 @@
 		transform: translateY(-1px);
 	}
 	.remap-key.function-key {
-		height: 16.5%;
+		height: 17%;
 	}
 	.remap-key.changed {
 		border-color: #3b82f6;
@@ -354,10 +355,10 @@
 		.remap-stage {
 			width: 100%;
 			padding: 8px;
-			overflow-x: auto;
 		}
 		.remap-keyboard {
-			width: 440px;
+			width: 100%;
+			max-width: 440px;
 		}
 	}
 </style>
