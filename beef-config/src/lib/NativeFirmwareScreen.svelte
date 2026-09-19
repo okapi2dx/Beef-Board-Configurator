@@ -3,7 +3,8 @@
   import { Button } from '$lib/components/ui/button';
   import * as AlertDialog from '$lib/components/ui/alert-dialog';
   import { appState, onDisconnect } from '$lib/types/state.svelte';
-  import { Command, sendCommand } from '$lib/types/hid';
+  import { Command, sendCommand, waitForReconnection } from '$lib/types/hid';
+  import { DfuDevice } from '$lib/types/dfu';
   import { tr } from '$lib/types/locale.svelte';
   import { formatDisplayVersion } from '$lib/types/version';
   let selected = $state<{ name: string; bytes: number; commitHash: string | null; version: string | null } | null>(null);
@@ -30,22 +31,78 @@
       appState.error = `${err}`;
     } finally { busy = false; appState.disableConfigTab = false; }
   }
+  async function waitForAuthorizedDfu(timeoutMs = 5000): Promise<DfuDevice | null> {
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+      try {
+        const dfu = await DfuDevice.connectAuthorized();
+        if (dfu) return dfu;
+      } catch {
+        // avrdude may still be releasing the DFU interface; retry briefly.
+      }
+      await new Promise(resolve => setTimeout(resolve, 250));
+    }
+    return null;
+  }
+
+  async function returnToNormalMode(): Promise<void> {
+    const dfu = await waitForAuthorizedDfu();
+    if (!dfu) throw new Error('DFUデバイスへ再接続できませんでした。');
+    try {
+      try {
+        await dfu.startApplication();
+      } catch {
+        // START_APP normally makes the DFU device disappear immediately.
+      }
+    } finally {
+      await dfu.close();
+    }
+
+    message = '通常モードのUSB再接続を待っています…';
+    await waitForReconnection(20000);
+  }
+
   async function flash() {
     confirmOpen = false;
     if (busy || !selected) return;
     busy = true; appState.disableConfigTab = true; log = ''; appState.error = undefined;
-    message = '書き込み中です。USBを抜かず、アプリを閉じないでください。';
+    message = '書き込み準備中です。USBを抜かず、アプリを閉じないでください。';
+
+    let canAutoReturn = false;
     try {
+      // Request DFU permission while this click still has user activation.
+      // The native avrdude process is used for flashing; WebUSB is only used
+      // afterwards to send Atmel START_APP and return to normal firmware.
+      try { canAutoReturn = await DfuDevice.authorize(); } catch { canAutoReturn = false; }
+
+      message = '書き込み中です。USBを抜かず、アプリを閉じないでください。';
       const result = await window.beefNative!.flashFirmware();
-      message = result.success ? '書き込み・照合が完了しました。USBを抜き差しして通常モードに戻してください。' : `書き込みに失敗しました（終了コード: ${result.exitCode}）。下のログを確認してください。`;
-    } catch (err) { message = '書き込みを実行できませんでした。'; appState.error = `${err}`; }
-    finally { busy = false; appState.disableConfigTab = false; }
+      if (!result.success) {
+        message = `書き込みに失敗しました（終了コード: ${result.exitCode}）。下のログを確認してください。`;
+        return;
+      }
+
+      message = '書き込み・照合が完了しました。通常モードへ再起動しています…';
+      if (!canAutoReturn) {
+        throw new Error('DFUの自動再接続権限を取得できませんでした。');
+      }
+
+      await returnToNormalMode();
+      message = '書き込みが完了し、通常モードへ自動再接続しました。';
+    } catch (err) {
+      if (message.startsWith('書き込み・照合が完了しました')) {
+        message = '書き込み・照合は完了しましたが、通常モードへの自動再接続に失敗しました。';
+      } else if (!message.includes('失敗しました')) {
+        message = '書き込みを実行できませんでした。';
+      }
+      appState.error = `${err}`;
+    } finally { busy = false; appState.disableConfigTab = false; }
   }
 </script>
 
 <div class="space-y-5">
   <h2 class="text-xl font-bold">{tr('ファームウェア書き込み（beef-tool方式）', 'Firmware Flashing (beef-tool method)')}</h2>
-  <p>{tr('旧beef-toolと同じ書き込みツールを内蔵しています。WebUSBへの接続操作は不要です。', 'The app includes the same flashing tool as beef-tool. WebUSB is not required.')}</p>
+  <p>{tr('旧beef-toolと同じ書き込みツールを内蔵しています。書き込み成功後は通常モードへ自動で再起動・再接続します。', 'The app includes the same flashing tool as beef-tool and automatically restarts and reconnects the board in normal mode after a successful flash.')}</p>
   <div class="space-y-2">
     <h3 class="font-semibold">{tr('1. ファームウェアを選択', '1. Select firmware')}</h3>
     <Button variant="outline" class="reset-action-button" onclick={select} disabled={busy}>{tr('HEXファイルを選択', 'Select HEX file')}</Button>
