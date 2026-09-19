@@ -19,10 +19,10 @@ const assert = require('node:assert/strict');
     await page.addInitScript(()=>{
       localStorage.setItem('beef-language','ja');
       const bytes=new Uint8Array(1025);bytes[0]=1;bytes[1]=27;bytes[5]=1;bytes[31]=2;bytes[79]=60;bytes[81]=24;bytes[85]=1;bytes[89]=100;
-      window.testRaw=0;window.reads=0;window.writes=[];window.failNextDiag=false;
+      window.testRaw=0;window.sensorAB=0;window.reads=0;window.writes=[];window.failNextDiag=false;
       const device={productName:'BEEF BOARD',vendorId:0xfeed,productId:0,opened:true,close:async()=>{},
         receiveFeatureReport:async id=>{
-          if(id===4){window.reads++;if(window.failNextDiag){window.failNextDiag=false;throw new DOMException('Busy','InvalidStateError');}const d=new Uint8Array(window.ttFrame ? 145 : window.barFrame ? 73 : 25);d[0]=4;d[4]=99;d[6]=window.testRaw;if(window.barFrame)d.set(window.barFrame,25);if(window.ttFrame)d.set(window.ttFrame,73);return new DataView(d.buffer);}
+          if(id===4){window.reads++;if(window.failNextDiag){window.failNextDiag=false;throw new DOMException('Busy','InvalidStateError');}const d=new Uint8Array(window.ttFrame ? 145 : window.barFrame ? 73 : 25);d[0]=4;d[3]=window.sensorAB;d[4]=99;d[6]=window.testRaw;if(window.barFrame)d.set(window.barFrame,25);if(window.ttFrame)d.set(window.ttFrame,73);return new DataView(d.buffer);}
           return new DataView(bytes.buffer.slice(0));
         },sendFeatureReport:async(id,data)=>window.writes.push({id,data:[...data]})};
       Object.defineProperty(navigator,'hid',{value:{requestDevice:async()=>[device],getDevices:async()=>[device],addEventListener(){},removeEventListener(){}}});
@@ -41,6 +41,12 @@ const assert = require('node:assert/strict');
       await page.waitForFunction(v=>document.querySelector('[role="meter"]')?.getAttribute('aria-valuenow')===String(v),value);
     }
     assert.equal(await meter.getAttribute('aria-valuemax'),'255');
+    for (const [sensorAB, expected] of [[0,'0/0'],[1,'0/1'],[3,'1/1'],[2,'1/0']]) {
+      await page.evaluate(v=>window.sensorAB=v,sensorAB);
+      await page.waitForFunction(v=>document.querySelector('[data-testid="turntable-phases"]')?.textContent?.replace(/\s+/g,' ').trim().endsWith(v),expected);
+    }
+    assert.equal(await page.getByText('回転方向',{exact:true}).count(),0);
+
     assert.equal(await page.getByText('設定プロファイル',{exact:true}).count(),0);
     assert.equal(await page.getByText('ターンテーブル入力カーブ',{exact:true}).count(),0);
     assert.equal(await page.getByText('ボタンごとに設定',{exact:true}).count(),0);
@@ -79,7 +85,7 @@ const assert = require('node:assert/strict');
     }
     await page.waitForTimeout(100);const pausedReads=await page.evaluate(()=>window.reads);
     await page.waitForTimeout(150);assert.equal(await page.evaluate(()=>window.reads),pausedReads);
-    const linked=await page.getByText('ターンテーブルとライトバーの発光効果を連動',{exact:true}).boundingBox();const ttEffect=await page.getByText('ターンテーブルの発光効果',{exact:true}).boundingBox();
+    const linked=await page.getByText('ターンテーブルとセンターバーの発光効果を連動',{exact:true}).boundingBox();const ttEffect=await page.getByText('ターンテーブルの発光効果',{exact:true}).boundingBox();
     assert(linked.y < ttEffect.y,'Linked lighting switch must be above the turntable effect');
     await page.screenshot({path:path.resolve('../../../outputs/settings-led-v1.00.png'),fullPage:true});
     await page.getByRole('button',{name:/^コントローラーモニター/}).click();
