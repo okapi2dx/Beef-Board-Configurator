@@ -176,7 +176,8 @@
 			{#if config.version >= 12}
 				<div class="mb-4">
 					<ToolTipLabel forId="tt-sustain-ms" label={tr('ターンテーブル保持時間（ms）', 'Turntable Hold Time (ms)')}>
-						<p>{tr('回転停止後も入力を維持する時間です。', 'Keeps turntable input active briefly after rotation stops.')}</p>
+						<p>{tr('回転が止まった後の入力保持時間です。', 'Sets how long input is held after the turntable stops.')}</p>
+						<p>{tr('値を大きくすると入力が途切れにくくなります。', 'Higher values make the input less likely to drop out.')}</p>
 						<p>{tr('0msでは保持しません。', 'Set 0 ms for no hold time.')}</p>
 					</ToolTipLabel>
 					<SliderInput bind:value={config.tt_sustain_ms} min={0} max={255} id="tt-sustain-ms" />
@@ -187,6 +188,7 @@
 				<div class="mb-4">
 					<ToolTipLabel forId="tt-delay-ms" label={tr('ターンテーブル入力ディレイ（ms）', 'Turntable Input Delay (ms)')}>
 						<p>{tr('回転してから入力するまでの遅延時間です。', 'Sets the delay before turntable input is sent.')}</p>
+						<p>{tr('値を大きくすると入力が遅れて反映されます。', 'Higher values make the input take longer to appear.')}</p>
 						<p>{tr('0msで遅延なしになります。', 'Set 0 ms for no delay.')}</p>
 					</ToolTipLabel>
 					<SliderInput bind:value={config.tt_delay_ms} min={0} max={255} id="tt-delay-ms" />
@@ -210,7 +212,8 @@
 				<h3 class="mb-2 text-xl font-bold">{tr('チャタリング防止', 'Debouncing')}</h3>
 				<div class="mb-4">
 					<ToolTipLabel forId="iidx-button-debounce" label={tr('ボタンのデバウンス（ms）', 'Button Debounce (ms)')}>
-						<p>{tr('ボタンのチャタリングを防止します。', 'Reduces button switch chatter.')}</p>
+						<p>{tr('ボタンのチャタリングを防止します。', 'Prevents button switch chatter.')}</p>
+						<p>{tr('値を大きくすると連続入力を抑えます。', 'Higher values suppress repeated input more strongly.')}</p>
 						<p>{tr('0msで無効になります。', 'Set 0 ms to disable it.')}</p>
 					</ToolTipLabel>
 					<SliderInput
@@ -240,6 +243,7 @@
 					<div class="mb-4">
 						<ToolTipLabel forId="button-led-fade" label={tr('フェードアウト時間（ms）', 'Fade-out Time (ms)')}>
 							<p>{tr('ボタンLEDが消えるまでの時間です。', 'Sets how long a button LED takes to turn off.')}</p>
+							<p>{tr('値を大きくするとゆっくり消灯します。', 'Higher values make the LED fade out more slowly.')}</p>
 							<p>{tr('0msではすぐに消灯します。', 'At 0 ms, it turns off immediately.')}</p>
 						</ToolTipLabel>
 						<SliderInput bind:value={config.button_led_fade_ms} min={0} max={config.version >= 27 ? 1000 : 255} id="button-led-fade" />
@@ -247,12 +251,14 @@
 					<div class="mb-4">
 						<ToolTipLabel forId="button-led-brightness" label={tr('ボタンLEDの明るさ（％）', 'Button LED Brightness (%)')}>
 							<p>{tr('ボタンLEDの最大明るさを設定します。', 'Sets the maximum button LED brightness.')}</p>
+							<p>{tr('値を小さくするとLEDが暗くなります。', 'Lower values make the LED dimmer.')}</p>
 							<p>{tr('0％で消灯、100％で最大です。', '0% turns it off; 100% is maximum brightness.')}</p>
 						</ToolTipLabel>
 						<SliderInput bind:value={config.button_led_brightness} min={0} max={100} id="button-led-brightness" />
 					</div>
 					<Switch label={tr('ボタンLEDを反転', 'Invert Button LEDs')} bind:checked={config.button_led_invert}>
-						<p>{tr('OFFでは押している間だけ点灯します。', 'OFF lights the LED while pressed.')}</p>
+						<p>{tr('ボタンLEDの点灯動作を反転します。', 'Reverses the button LED lighting behavior.')}</p>
+						<p>{tr('OFFでは押している間に点灯します。', 'OFF lights the LED while pressed.')}</p>
 						<p>{tr('ONでは離している間に点灯します。', 'ON lights the LED while released.')}</p>
 					</Switch>
 					
@@ -307,7 +313,8 @@
 					<div class="mb-4">
 						<ToolTipLabel forId="led-refresh" label={tr('RGB LED更新頻度', 'RGB LED Refresh Rate')}>
 							<p>{tr('RGB LEDを更新する頻度です。', 'Sets the RGB LED refresh rate.')}</p>
-							<p>{tr('高くすると動きが滑らかになります。', 'Higher values make animations smoother.')}</p>
+							<p>{tr('値を高くすると動きが滑らかになります。', 'Higher values make animations smoother.')}</p>
+							<p>{tr('高すぎると処理負荷が増えます。', 'Very high values increase processing load.')}</p>
 						</ToolTipLabel>
 						<SliderInput bind:value={config.led_refresh} min={1} max={60} id="led-refresh" />
 					</div>
@@ -317,8 +324,9 @@
 							forId="rainbow-spin-speed"
 							label={tr('レインボー効果の回転速度', 'Rainbow Effect Spin Speed')}
 						>
-							<p>{tr('レインボーの色が動く速さです。', 'Sets the rainbow movement speed.')}</p>
-							<p>{tr('値が大きいほど速くなります。', 'Higher values are faster.')}</p>
+							<p>{tr('レインボーの色が動く速さです。', 'Sets how fast the rainbow colors move.')}</p>
+							<p>{tr('値を大きくすると動きが速くなります。', 'Higher values make the movement faster.')}</p>
+							<p>{tr('好みに合わせて調整してください。', 'Adjust it to your preference.')}</p>
 						</ToolTipLabel>
 						<SliderInput
 							bind:value={config.rainbow_spin_speed}
@@ -330,8 +338,9 @@
 
 					<div class="mb-4">
 						<ToolTipLabel forId="tt-leds" label={tr('ターンテーブルLED数', 'Turntable LEDs')}>
-							<p>{tr('ターンテーブルのRGB LED数です。初期値は24です。', 'Sets the turntable RGB LED count. The default is 24.')}</p>
-							<p>{tr('変更後は「再接続」で反映されます。', 'Changes are applied after Reconnect.')}</p>
+							<p>{tr('ターンテーブルのRGB LED数を設定します。', 'Sets the number of RGB LEDs on the turntable.')}</p>
+							<p>{tr('実際に接続しているLED数に合わせてください。', 'Match this to the number of LEDs actually connected.')}</p>
+							<p>{tr('初期値は24。変更後は「再接続」が必要です。', 'The default is 24. Reconnect is required after changing it.')}</p>
 						</ToolTipLabel>
 						<Input
 							class="w-1/5"
@@ -346,8 +355,9 @@
 					{#if config.version >= 32}
 						<div class="mb-4">
 							<ToolTipLabel forId="bar-leds" label={tr('センターバーLED数', 'Center Bar LEDs')}>
-								<p>{tr('センターバーのRGB LED数です。初期値は16です。', 'Sets the center bar RGB LED count. The default is 16.')}</p>
-								<p>{tr('変更後は「再接続」で反映されます。', 'Changes are applied after Reconnect.')}</p>
+								<p>{tr('センターバーのRGB LED数を設定します。', 'Sets the number of RGB LEDs on the center bar.')}</p>
+								<p>{tr('実際に接続しているLED数に合わせてください。', 'Match this to the number of LEDs actually connected.')}</p>
+								<p>{tr('初期値は16。変更後は「再接続」が必要です。', 'The default is 16. Reconnect is required after changing it.')}</p>
 							</ToolTipLabel>
 							<Input
 								class="w-1/5"
