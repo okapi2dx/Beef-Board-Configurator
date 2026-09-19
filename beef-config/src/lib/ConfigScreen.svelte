@@ -149,7 +149,10 @@
 			{/if}
 			<div class="mb-4">
 				<ToolTipLabel forId="tt-deadzone" label={config.version >= 22 ? tr('ターンテーブルのデッドゾーン（ms）', 'Turntable Deadzone (ms)') : tr('ターンテーブルのデッドゾーン', 'Turntable Deadzone')}
-					>{tr('設定時間以下で止まった回転を無視します。設定時間を超えて同じ方向に回転すると入力を開始。0msは判定なし。回転速度に応じて継続を判定し、停止や方向変更で時間を数え直します。', 'Ignores movement lasting no longer than the threshold. Input starts after continued movement exceeds it. 0 ms disables the gate. Continuity adapts to rotation speed; stopping or reversing restarts the timer.')}</ToolTipLabel
+					>
+						<p>{tr('回転し始めてから、設定時間を超えて同じ方向の回転が続いた場合に入力を開始します。短い揺れや誤反応を無視するための設定です。', 'Input starts only after rotation continues in the same direction longer than the configured time. This helps ignore brief movement and false input.')}</p>
+						<p>{tr('0msで無効になります。停止または逆方向へ回すと判定時間をリセットします。', 'Set 0 ms to disable it. Stopping or reversing resets the detection timer.')}</p>
+					</ToolTipLabel
 				>
 				<SliderInput bind:value={config.tt_deadzone} min={config.version >= 22 ? 0 : 1} max={config.version >= 22 ? 255 : 6} id="tt-deadzone" />
 			</div>
@@ -157,10 +160,8 @@
 			{#if config.version >= 12}
 				<div class="mb-4">
 					<ToolTipLabel forId="tt-sustain-ms" label={tr('ターンテーブル保持時間（ms）', 'Turntable Hold Time (ms)')}>
-						<p>{tr('アナログは実際のX軸入力をそのまま反映し、入力が止まった後は最後の方向へ設定した保持時間ぶんX軸入力を続けます。デジタルは最後の方向入力を設定した保持時間だけ維持します。0msで保持なし。', 'Analog input follows the real X-axis movement. After input stops, X-axis input continues in the last direction for the configured hold time. Digital mode keeps the last direction input active for the configured hold time. Set 0 ms to disable.')}</p>
-						<p>
-							{tr('回し始めと停止時におけるデジタル入力の感度に影響します。', 'This controls digital turntable sensitivity when rotation starts and stops.')}
-						</p>
+						<p>{tr('ターンテーブルの回転が止まったあとも、最後の回転方向の入力を設定時間だけ維持します。0msでは保持しません。', 'Keeps input active in the last rotation direction for the configured time after the turntable stops. Set 0 ms for no hold time.')}</p>
+						<p>{tr('値を大きくすると入力が途切れにくくなりますが、停止時の反応は遅くなります。', 'Higher values make input less likely to drop out, but make stopping feel less immediate.')}</p>
 					</ToolTipLabel>
 					<SliderInput bind:value={config.tt_sustain_ms} min={0} max={255} id="tt-sustain-ms" />
 				</div>
@@ -168,7 +169,10 @@
 
 			{#if config.version >= 21}
 				<div class="mb-4">
-					<ToolTipLabel forId="tt-delay-ms" label={tr('ターンテーブル入力ディレイ（ms）', 'Turntable Input Delay (ms)')}>{tr('0msで遅延なし。アナログ・デジタル両方のターンテーブル入力に適用します。', '0 ms disables the delay. Applies to both analog and digital turntable input.')}</ToolTipLabel>
+					<ToolTipLabel forId="tt-delay-ms" label={tr('ターンテーブル入力ディレイ（ms）', 'Turntable Input Delay (ms)')}>
+						<p>{tr('回転を検出してからゲームへ入力を送るまでの待ち時間を設定します。', 'Sets the delay between detecting turntable movement and sending the input to the game.')}</p>
+						<p>{tr('0msで遅延なし。アナログ・デジタルの両方に適用されます。', 'Set 0 ms for no delay. This applies to both analog and digital input.')}</p>
+					</ToolTipLabel>
 					<SliderInput bind:value={config.tt_delay_ms} min={0} max={255} id="tt-delay-ms" />
 					
 				</div>
@@ -189,7 +193,10 @@
 
 				<h3 class="mb-2 text-xl font-bold">{tr('チャタリング防止', 'Debouncing')}</h3>
 				<div class="mb-4">
-					<ToolTipLabel forId="iidx-button-debounce" label={tr('ボタンのデバウンス（ms）', 'Button Debounce (ms)')}>{tr('最初の押下は即時に入力し、同じボタンの設定時間未満の再押下を無視します。離すとすぐ解除します。無視した押下は後から入力されません。0msで無効。', 'Accepts the first press immediately and ignores new presses of that button within the configured time. Release is immediate; ignored presses are never deferred. 0 ms disables filtering.')}</ToolTipLabel>
+					<ToolTipLabel forId="iidx-button-debounce" label={tr('ボタンのデバウンス（ms）', 'Button Debounce (ms)')}>
+						<p>{tr('最初の押下はすぐに入力し、その後の設定時間内に発生した同じボタンの再押下を無視します。チャタリング対策に使用します。', 'The first press is accepted immediately. Repeated presses of the same button within the configured time are ignored to reduce switch chatter.')}</p>
+						<p>{tr('ボタンを離したときはすぐに解除します。0msで無効になります。', 'Release is immediate. Set 0 ms to disable filtering.')}</p>
+					</ToolTipLabel>
 					<SliderInput
 						bind:value={config.iidx_buttons_debounce}
 						min={0}
@@ -215,14 +222,23 @@
 				<h3 class="mb-2 text-xl font-bold">{tr('ボタンLED', 'Button LEDs')}</h3>
 				{#if config.version >= 23}
 					<div class="mb-4">
-						<ToolTipLabel forId="button-led-fade" label={tr('フェードアウト時間（ms）', 'Fade-out Time (ms)')}>{tr('ボタンLEDが消灯するとき、設定時間をかけて徐々に暗くします。0msではすぐに消灯します。', 'Gradually dims a button LED over the configured time when it turns off. At 0 ms it turns off immediately.')}</ToolTipLabel>
+						<ToolTipLabel forId="button-led-fade" label={tr('フェードアウト時間（ms）', 'Fade-out Time (ms)')}>
+							<p>{tr('ボタンLEDが消灯するときに、設定した時間をかけて徐々に暗くします。', 'Sets how long a button LED takes to fade out when it turns off.')}</p>
+							<p>{tr('0msではフェードせず、すぐに消灯します。', 'At 0 ms, the LED turns off immediately without fading.')}</p>
+						</ToolTipLabel>
 						<SliderInput bind:value={config.button_led_fade_ms} min={0} max={config.version >= 27 ? 1000 : 255} id="button-led-fade" />
 					</div>
 					<div class="mb-4">
-						<ToolTipLabel forId="button-led-brightness" label={tr('ボタンLEDの明るさ（％）', 'Button LED Brightness (%)')}>{tr('5Vでの連続点灯を100％として明るさを調整します。0％では消灯します。ゲームからの点灯指示にも適用されます。', 'Adjusts brightness with continuous 5 V output treated as 100%. At 0% the LEDs remain off. This also applies to lighting commands from the game.')}</ToolTipLabel>
+						<ToolTipLabel forId="button-led-brightness" label={tr('ボタンLEDの明るさ（％）', 'Button LED Brightness (%)')}>
+							<p>{tr('ボタンLEDの最大明るさを調整します。100％が通常の最大出力、0％で消灯です。', 'Sets the maximum button LED brightness. 100% is full output and 0% keeps the LEDs off.')}</p>
+							<p>{tr('ゲームから送られる点灯指示にもこの明るさ設定が適用されます。', 'This brightness limit also applies to lighting commands sent by the game.')}</p>
+						</ToolTipLabel>
 						<SliderInput bind:value={config.button_led_brightness} min={0} max={100} id="button-led-brightness" />
 					</div>
-					<Switch label={tr('ボタンLEDを反転', 'Invert Button LEDs')} bind:checked={config.button_led_invert}>{tr('OFFでは押すと点灯し、離すと消灯します。ONでは離している間に点灯し、押すと消灯します。フェードアウトは消灯時に適用します。', 'OFF lights the LED while pressed and turns it off on release. ON lights it while released and turns it off when pressed. Fade-out applies whenever it turns off.')}</Switch>
+					<Switch label={tr('ボタンLEDを反転', 'Invert Button LEDs')} bind:checked={config.button_led_invert}>
+						<p>{tr('OFFではボタンを押している間だけ点灯します。ONでは動作を反転し、ボタンを離している間に点灯します。', 'OFF lights the LED while the button is pressed. ON reverses the behavior and lights it while the button is released.')}</p>
+						<p>{tr('フェードアウト設定は、LEDが消灯するときに適用されます。', 'The fade-out setting is applied whenever the LED turns off.')}</p>
+					</Switch>
 					
 				{:else}
 					<p class="mb-4">{tr('ボタンLEDの調整にはファームウェアV1.00以降へ更新してください。', 'Update to firmware V1.00 or later to adjust button LEDs.')}</p>
@@ -275,7 +291,7 @@
 					<div class="mb-4">
 						<ToolTipLabel forId="led-refresh" label={tr('RGB LED更新頻度', 'RGB LED Refresh Rate')}>
 							<p>
-								{tr('RGB LEDを更新する頻度です。値を上げると滑らかになりますが、処理負荷が増えます。', 'Controls how often RGB LEDs update. Higher values make animation smoother but use more processing time.')}
+								{tr('RGB LEDを1秒間に更新する回数を設定します。値を上げるとアニメーションが滑らかになりますが、処理負荷も増えます。', 'Sets how many times per second the RGB LEDs are updated. Higher values make animations smoother but increase processing load.')}
 							</p>
 						</ToolTipLabel>
 						<SliderInput bind:value={config.led_refresh} min={1} max={60} id="led-refresh" />
@@ -287,7 +303,7 @@
 							label={tr('レインボー効果の回転速度', 'Rainbow Effect Spin Speed')}
 						>
 							<p>
-								{tr('レインボー系の回転速度と反応速度を設定します。', 'Controls the speed and responsiveness of rainbow effects.')}
+								{tr('レインボー系エフェクトの色が動く速さを設定します。値を大きくすると、色の移動や反応が速くなります。', 'Sets how quickly rainbow colors move and react. Higher values make the effect respond and move faster.')}
 							</p>
 						</ToolTipLabel>
 						<SliderInput
@@ -300,11 +316,8 @@
 
 					<div class="mb-4">
 						<ToolTipLabel forId="tt-leds" label={tr('ターンテーブルLED数', 'Turntable LEDs')}>
-							<p>
-								{tr('ターンテーブルで点灯するLED数です。値を上げると消費電力と処理負荷が増えます。', 'Controls the number of lit turntable LEDs. Higher values use more power and may affect performance.')}
-							</p>
-							<br />
-							<p>{tr('反映には基板の再起動が必要です。', 'Restart the board to apply this setting.')}</p>
+							<p>{tr('ターンテーブルに接続しているRGB LEDの個数を設定します。実際に接続しているLED数と同じ値にしてください。', 'Sets the number of RGB LEDs connected to the turntable. Use the actual number of connected LEDs.')}</p>
+							<p>{tr('変更後は「再接続」を行うと反映されます。', 'Use Reconnect after changing this value to apply it.')}</p>
 						</ToolTipLabel>
 						<Input
 							class="w-1/5"
@@ -315,6 +328,25 @@
 							bind:value={config.tt_leds}
 						/>
 					</div>
+
+					{#if config.version >= 32}
+						<div class="mb-4">
+							<ToolTipLabel forId="bar-leds" label={tr('センターバーLED数', 'Center Bar LEDs')}>
+								<p>{tr('センターバーに接続しているRGB LEDの個数を設定します。実際に接続しているLED数と同じ値にしてください。初期値は16です。', 'Sets the number of RGB LEDs connected to the center bar. Use the actual number of connected LEDs. The default is 16.')}</p>
+								<p>{tr('変更後は「再接続」を行うと反映されます。', 'Use Reconnect after changing this value to apply it.')}</p>
+							</ToolTipLabel>
+							<Input
+								class="w-1/5"
+								id="bar-leds"
+								min={1}
+								max={255}
+								type="number"
+								bind:value={config.bar_leds}
+							/>
+						</div>
+					{:else}
+						<p class="mb-4 text-sm">{tr('センターバーLED数の変更には、対応ファームウェアへ更新してください。', 'Update to compatible firmware to change the center bar LED count.')}</p>
+					{/if}
 				{/if}
 			{/if}
 		</div>
