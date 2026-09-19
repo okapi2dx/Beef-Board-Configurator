@@ -91,11 +91,29 @@ const assert = require('node:assert/strict');
     const meter = page.getByRole('meter', { name: '設定反映後のX軸', exact: true });
     await meter.waitFor();
 
-    assert.equal(
-      await page.getByRole('button', { name: 'ターンテーブル感度の説明', exact: true }).count(),
-      1,
-      'Sensitivity help button must exist'
-    );
+    const sensitivityHelp = page.getByRole('button', { name: 'ターンテーブル感度の説明', exact: true });
+    assert.equal(await sensitivityHelp.count(), 1, 'Sensitivity help button must exist');
+    await sensitivityHelp.focus();
+    const sensitivityTooltip = page.locator('[data-slot="tooltip-content"]');
+    await sensitivityTooltip.waitFor({ state: 'visible' });
+    for (const line of [
+      'ターンテーブルの回転に対する入力量を調整します。',
+      '感度10では1カウント、感度5では2カウントです。',
+      '感度1では10カウントです。'
+    ]) {
+      assert.equal(await sensitivityTooltip.getByText(line, { exact: true }).count(), 1, `Missing sensitivity help line: ${line}`);
+    }
+    const tooltipFits = await sensitivityTooltip.evaluate((el) => el.scrollWidth <= el.clientWidth + 1);
+    assert(tooltipFits, 'Sensitivity tooltip content must stay inside its frame');
+    await page.keyboard.press('Tab');
+
+    const ledSubtitle = page.locator('.led-nav-subtitle');
+    assert.equal(await ledSubtitle.count(), 1, 'LED sidebar subtitle must exist');
+    const ledSubtitleFits = await ledSubtitle.evaluate((el) => {
+      const style = getComputedStyle(el);
+      return style.whiteSpace === 'nowrap' && el.scrollWidth <= el.clientWidth + 1 && el.scrollHeight <= el.clientHeight + 1;
+    });
+    assert(ledSubtitleFits, 'LED sidebar subtitle must fit on one line');
 
     for (const line of [
       'アナログ設定では、各設定を反映したX軸値を表示します。',
