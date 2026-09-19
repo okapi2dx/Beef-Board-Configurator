@@ -22,7 +22,7 @@ const assert = require('node:assert/strict');
       localStorage.setItem('beef-language','ja');
       const bytes=new Uint8Array(1025);bytes[0]=1;bytes[1]=27;bytes[5]=1;bytes[31]=2;bytes[79]=60;bytes[81]=24;bytes[85]=1;bytes[89]=100;
       window.testRaw=0;window.sensorAB=0;window.reads=0;window.writes=[];window.failNextDiag=false;
-      const device={productName:'BEEF BOARD',vendorId:0xfeed,productId:0,opened:true,close:async()=>{},
+      const device={productName:'BEEF BOARD',vendorId:0xfeed,productId:0,opened:true,collections:[{usagePage:0xffeb,usage:0x01}],close:async()=>{},
         receiveFeatureReport:async id=>{
           if(id===4){window.reads++;if(window.failNextDiag){window.failNextDiag=false;throw new DOMException('Busy','InvalidStateError');}const d=new Uint8Array(window.ttFrame ? 145 : window.barFrame ? 73 : 25);d[0]=4;d[3]=window.sensorAB;d[4]=99;d[6]=window.testRaw;if(window.barFrame)d.set(window.barFrame,25);if(window.ttFrame)d.set(window.ttFrame,73);return new DataView(d.buffer);}
           return new DataView(bytes.buffer.slice(0));
